@@ -4,6 +4,13 @@ var settings = {
 	loggedIn : false
 };
 
+/* 
+	serve all files stored in the web folder as normal files; you can store the website that will use the streamer in this folder.
+	if you don't want this; please remove the next 2 lines.
+*/
+app.use(app.router); 
+app.use(express.static(__dirname + "/web"));
+
 /**
  * Streams a given mp3; if a user is logged in
  */
