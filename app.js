@@ -1,8 +1,14 @@
-var express = require('express'), fs = require('fs');
+var express = require('express'), fs = require('fs'), dblite = require('dblite'), log4js = require('log4js');
 var app = express();
 var settings = {
 	loggedIn : false
 };
+// setup logging
+log4js.loadAppender('file');
+log4js.addAppender(log4js.appenders.file('logs/mp3stream.log'), 'mp3stream');
+var logger = log4js.getLogger('mp3stream');
+logger.setLevel('INFO');
+
 
 /*
  serve all files stored in the web folder as normal files; you can store the website that will use the streamer in this folder.
@@ -19,7 +25,7 @@ app.get('/listen', function(req, res) {
 	if (settings.loggedIn) {
 		fs.exists(path, function(exists) {
 			if (exists) {
-				console.log("going to stream", path);
+				logger.info("going to stream " + path);
 				fs.readFile(path, 'binary', function(err, file) {
 					var header = {};
 					var range = req.headers.range;
@@ -43,10 +49,11 @@ app.get('/listen', function(req, res) {
 					return;
 				});
 			} else {
-				console.error("no file with name", path, "found");
+				logger.warn("no file with name " + path + " found");
 			}
 		});
 	} else {
+		logger.warn("User not authorized");
 		res.writeHead(401);
 		res.end();
 	}
@@ -56,13 +63,40 @@ app.get('/listen', function(req, res) {
  * Login a user
  */
 app.get('/login', function(req, res) {
+	logger.info("Starting authentication");
 	var account = req.query.account, passwd = req.query.passwd, server = req.query.server;
 	// for now always accept the login
 	// send the response as JSONP
-	res.jsonp({
-		success : true
-	});
-	settings.loggedIn = true;
+	if (account && passwd) {
+		// have a sqlite db with users and passwords; it's not the responsibility of this app to create it.
+		var db = dblite('users.db');
+		db.query('SELECT * FROM users WHERE username = :account AND password = :passwd', {
+			account: account,
+			passwd: passwd
+		}, {
+			username: String,
+			passwd: String
+		},function (rows) {
+			var user = rows.length && rows[0];
+			if (user.passwd === passwd) {
+				res.jsonp({
+					success : true
+				});	
+				settings.loggedIn = true;
+				logger.info("User "+ account +" authenticated");
+			} else {
+				res.jsonp({
+					success : false
+				});
+				logger.error("User "+ account +" NOT authenticated");
+			}
+		});
+	} else {
+		res.jsonp({
+			success : false
+		});
+		logger.warn("No user specified, NOT authenticated");
+	}
 });
-
+logger.info("Starting node-mp3stream");
 app.listen(2000);
