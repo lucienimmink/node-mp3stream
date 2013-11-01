@@ -10,12 +10,34 @@ var logger = log4js.getLogger('mp3stream');
 logger.setLevel('INFO');
 
 
+/* CORS */
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+    // intercept OPTIONS method
+    if ('OPTIONS' == req.method) {
+      res.send(200);
+    }
+    else {
+      next();
+    }
+};
+
+app.configure(function () {
+	app.use(allowCrossDomain);
+});
+
 /*
  serve all files stored in the web folder as normal files; you can store the website that will use the streamer in this folder.
  if you don't want this; please remove the next 2 lines.
  */
 app.use(app.router);
 app.use(express.static(__dirname + "/web"));
+
+
+
 
 /**
  * Streams a given mp3; if a user is logged in
