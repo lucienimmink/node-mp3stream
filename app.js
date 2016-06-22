@@ -27,14 +27,15 @@ var allowCrossDomain = function(req, res, next) {
 
 app.configure(function() {
 	app.use(allowCrossDomain);
+	app.use(express.bodyParser());
 });
 
 /*
  serve all files stored in the web folder as normal files; you can store the website that will use the streamer in this folder.
  if you don't want this; please remove the next 2 lines.
  */
-app.use(app.router);
-app.use(express.static(__dirname + "/web"));
+//app.use(app.router);
+//app.use(express.static(__dirname + "/web"));
 
 /**
  * Streams a given mp3; if a user is logged in
@@ -93,12 +94,13 @@ app.get('/listen', function(req, res) {
 	}
 });
 
+
 /**
  * Login a user
  */
-app.get('/login', function(req, res) {
-	logger.info("Starting authentication");
-	var account = req.query.account, passwd = req.query.passwd, server = req.query.server;
+app.post('/login', function(req, res) {
+	logger.info("Starting authentication");	
+	var account = req.body.account, passwd = req.body.passwd, server = req.query.server;
 	// for now always accept the login
 	// send the response as JSONP
 	if (account && passwd) {
