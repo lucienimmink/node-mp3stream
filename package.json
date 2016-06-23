@@ -6,6 +6,9 @@
   "dependencies": {
     "dblite": "^0.7.7",
     "express": "^3.21.2",
-    "log4js": "^0.6.37"
+    "lodash": "^4.13.1",
+    "log4js": "^0.6.37",
+    "musicmetadata": "^2.0.4",
+    "node-ffprobe": "^1.2.2"
   }
 }

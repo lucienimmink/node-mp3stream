@@ -1,7 +1,8 @@
 var express = require('express'), fs = require('fs'), dblite = require('dblite'), log4js = require('log4js');
+var fs = require('fs'), app = module.exports, probe = require('node-ffprobe'), mm = require('musicmetadata'), util = require('util'), _ = require("lodash");
 var app = express();
 var settings = {
-	loggedIn : false
+	loggedIn: true
 };
 // setup logging
 log4js.loadAppender('file');
@@ -10,13 +11,13 @@ var logger = log4js.getLogger('mp3stream');
 logger.setLevel('INFO');
 
 /* CORS */
-var allowCrossDomain = function(req, res, next) {
+var allowCrossDomain = function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Methods', 'GET');
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
 	res.setHeader("Cache-Control", "public, max-age=4320000"); // 12 hours
-    res.setHeader("Expires", new Date(Date.now() + 4320000).toUTCString());
+	res.setHeader("Expires", new Date(Date.now() + 4320000).toUTCString());
 	// intercept OPTIONS method
 	if ('OPTIONS' == req.method) {
 		res.send(200);
@@ -25,7 +26,7 @@ var allowCrossDomain = function(req, res, next) {
 	}
 };
 
-app.configure(function() {
+app.configure(function () {
 	app.use(allowCrossDomain);
 	app.use(express.bodyParser());
 });
@@ -34,20 +35,20 @@ app.configure(function() {
  serve all files stored in the web folder as normal files; you can store the website that will use the streamer in this folder.
  if you don't want this; please remove the next 2 lines.
  */
-//app.use(app.router);
-//app.use(express.static(__dirname + "/web"));
+app.use(app.router);
+app.use(express.static('public'));
 
 /**
  * Streams a given mp3; if a user is logged in
  */
-app.get('/listen', function(req, res) {
+app.get('/listen', function (req, res) {
 	var path = req.query.path, full = req.query.full;
 	if (settings.loggedIn) {
-		fs.exists(path, function(exists) {
+		fs.exists(path, function (exists) {
 			if (exists) {
 				if (!full) {
 					logger.info("going to partial stream " + path);
-					fs.readFile(path, 'binary', function(err, file) {
+					fs.readFile(path, 'binary', function (err, file) {
 						var header = {};
 						var range = req.headers.range;
 						var parts = range.replace(/bytes=/, "").split("-");
@@ -74,8 +75,8 @@ app.get('/listen', function(req, res) {
 					var stat = fs.statSync(path);
 
 					res.writeHead(200, {
-						'Content-Type' : 'audio/mpeg',
-						'Content-Length' : stat.size
+						'Content-Type': 'audio/mpeg',
+						'Content-Length': stat.size
 					});
 
 					var readStream = fs.createReadStream(path);
@@ -98,8 +99,8 @@ app.get('/listen', function(req, res) {
 /**
  * Login a user
  */
-app.post('/login', function(req, res) {
-	logger.info("Starting authentication");	
+app.post('/login', function (req, res) {
+	logger.info("Starting authentication");
 	var account = req.body.account, passwd = req.body.passwd, server = req.query.server;
 	// for now always accept the login
 	// send the response as JSONP
@@ -107,32 +108,134 @@ app.post('/login', function(req, res) {
 		// have a sqlite db with users and passwords; it's not the responsibility of this app to create it.
 		var db = dblite('users.db');
 		db.query('SELECT * FROM users WHERE username = :account AND password = :passwd', {
-			account : account,
-			passwd : passwd
+			account: account,
+			passwd: passwd
 		}, {
-			username : String,
-			passwd : String
-		}, function(rows) {
-			var user = rows.length && rows[0];
-			if (user.passwd === passwd) {
-				res.jsonp({
-					success : true
-				});
-				settings.loggedIn = true;
-				logger.info("User " + account + " authenticated");
-			} else {
-				res.jsonp({
-					success : false
-				});
-				logger.error("User " + account + " NOT authenticated");
-			}
-		});
+				username: String,
+				passwd: String
+			}, function (rows) {
+				var user = rows.length && rows[0];
+				if (user.passwd === passwd) {
+					res.jsonp({
+						success: true
+					});
+					settings.loggedIn = true;
+					logger.info("User " + account + " authenticated");
+				} else {
+					res.jsonp({
+						success: false
+					});
+					logger.error("User " + account + " NOT authenticated");
+				}
+			});
 	} else {
 		res.jsonp({
-			success : false
+			success: false
 		});
 		logger.warn("No user specified, NOT authenticated");
 	}
 });
 logger.info("Starting node-mp3stream");
-app.listen(2000);
+app.listen(16881);
+
+
+
+
+
+
+/* scanner */
+var dir = "/volume1/music";
+// var dir = "d:/tmp";
+var list = [];
+var nrScanned = 0;
+var start = new Date();
+
+var Track = function (data, file) {
+	this.artist = data.artist[0];
+	this.albumartist = data.albumartist[0];
+	this.album = data.album;
+	this.year = data.year;
+	this.number = data.track.no;
+	this.disc = data.disk.no;
+	this.title = data.title;
+	this.duration = data.duration * 1000;
+	this.id = this.artist + "|" + this.album + "|" + this.number + "|" + this.title;
+	var f = file.toString();
+	var secretIndex = dir.length;
+	this.path = f.substring(secretIndex);
+};
+
+
+var extractData = function (data, file) {
+	var track = new Track(data, file);
+	list.push(track);
+}
+
+/* walk over a directory recursivly */
+var walk = function (dir, done) {
+	var results = [];
+	fs.readdir(dir, function (err, list) {
+		if (err)
+			return done(err);
+		var i = 0;
+		(function next() {
+			var file = list[i++];
+			if (!file)
+				return done(null, results);
+			file = dir + '/' + file;
+			fs.stat(file, function (err, stat) {
+				if (stat && stat.isDirectory()) {
+					walk(file, function (err, res) {
+						results = results.concat(res);
+						next();
+					});
+				} else {
+					var ext = file.split(".");
+					ext = ext[ext.length - 1];
+					if (ext === 'mp3') {
+						results.push(file);
+					}
+					next();
+				}
+			});
+		})();
+	});
+};
+
+var doParse = function (file, callback) {
+	// console.log("parse", file);
+	var parser = mm(fs.createReadStream(file), { duration: true }, function (err, result) {
+		if (err) throw err;
+		extractData(result, file);
+		nrScanned++;
+		if (callback) {
+			callback();
+		}
+	});
+};
+var setupParse = function (results) {
+	if (!results) {
+		console.log('no results!');
+	}
+	if (results && results.length > 0) {
+		var file = results.pop();
+		doParse(file, function () {
+			setupParse(results);
+		});
+	} else {
+		fs.writeFile('./public/data/node-music.json', JSON.stringify(list), function (err) {
+			if (err)
+				//throw err;
+				console.log("err", err);
+			var stop = new Date();
+			console.log("Done scanning, time taken:", (stop - start) / 100, true);
+			console.log("the webserver will continue to listen");
+		});
+	}
+};
+
+walk(dir, function (err, results) {
+	totalFiles = (results) ? results.length : 0;
+	console.log("starting scan for", totalFiles, "files");
+	setupParse(results);
+});
