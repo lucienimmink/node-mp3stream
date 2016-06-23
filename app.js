@@ -86,6 +86,8 @@ app.get('/listen', function (req, res) {
 
 			} else {
 				logger.warn("no file with name " + path + " found");
+				res.writeHead(404);
+				res.end();
 			}
 		});
 	} else {
