@@ -4,12 +4,13 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "async": "^2.0.0-rc.6",
     "dblite": "^0.7.7",
+    "duration-format": "0.0.2",
     "express": "^3.21.2",
     "forever": "^0.15.2",
     "lodash": "^4.13.1",
     "log4js": "^0.6.37",
-    "musicmetadata": "^2.0.4",
-    "node-ffprobe": "^1.2.2"
+    "musicmetadata": "^2.0.4"
   }
 }

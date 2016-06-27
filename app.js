@@ -1,5 +1,5 @@
 var express = require('express'), fs = require('fs'), dblite = require('dblite'), log4js = require('log4js');
-var fs = require('fs'), app = module.exports, probe = require('node-ffprobe'), mm = require('musicmetadata'), util = require('util'), _ = require("lodash");
+var fs = require('fs'), app = module.exports, mm = require('musicmetadata'), util = require('util'), _ = require("lodash"), async = require("async"), df = require("duration-format");
 var app = express();
 var settings = {
 	loggedIn: true
@@ -147,9 +147,10 @@ app.listen(16881);
 
 /* scanner */
 
-var dir = "/volume1/music";
+// var dir = "/volume1/music";
+var dir = "C:\\Users\\lucien.immink\\Music";
+var WORKERS = 30; // how many concurent streams do we want to handle?
 
-/*
 // var dir = "d:/tmp";
 var list = [];
 var nrScanned = 0;
@@ -171,9 +172,10 @@ var Track = function (data, file) {
 };
 
 
-var extractData = function (data, file) {
+var extractData = function (data, file, callback) {
 	var track = new Track(data, file);
 	list.push(track);
+	callback();
 }
 
 // walk over a directory recursivly
@@ -207,47 +209,37 @@ var walk = function (dir, done) {
 	});
 };
 
-var doParse = function (file, callback) {
-	// console.log("parse", file);
-	var parser = mm(fs.createReadStream(file), { duration: true }, function (err, result) {
-		if (err) {
-		    console.error('error parsing file', file);
-		    if (callback) callback();
-		};
-		extractData(result, file);
-		nrScanned++;
-		if (callback) {
-			callback();
-		}
-	});
-};
 var setupParse = function (results) {
-	if (!results) {
-		console.log('no results!');
-	}
-	if (nrScanned % 100 === 0) {
-	    console.log('scanned', nrScanned, 'nunbers');
-	}
-	if (results && results.length > 0) {
-		var file = results.pop();
-		doParse(file, function () {
-			setupParse(results);
+
+	var q = async.queue(function (fileName, callback) {
+		var parser = mm(fs.createReadStream(fileName), { duration: true }, function (err, result) {
+			if (err) {
+				callback();
+			}
+			extractData(result, fileName, callback);
 		});
-	} else {
-		fs.writeFile('./public/data/node-music.json', JSON.stringify(list), function (err) {
-			if (err)
-				//throw err;
-				console.log("err", err);
-			var stop = new Date();
-			console.log("Done scanning, time taken:", (stop - start) / 100, true);
-			console.log("the webserver will continue to listen");
+	}, WORKERS);
+
+	if (results) {
+		q.push(results, function (err) {
+			if (list.length % 250 === 0) {
+				logger.info('scanned', list.length, 'songs');
+			}
+			if (list.length === totalFiles) {
+				fs.writeFile('./public/data/node-music.json', JSON.stringify(list), function (err) {
+					if (err) {
+						logger.error("err", err);
+					}
+					var stop = new Date();
+					logger.info("Done scanning, time taken:", df(stop - start, '#{2H}:#{2M}:#{2S}'));
+				});
+			}
 		});
 	}
 };
 
 walk(dir, function (err, results) {
 	totalFiles = (results) ? results.length : 0;
-	console.log("starting scan for", totalFiles, "files");
+	logger.info("starting scan for", totalFiles, "files");
 	setupParse(results);
 });
-*/
