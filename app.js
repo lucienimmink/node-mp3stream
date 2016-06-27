@@ -42,7 +42,7 @@ app.use(express.static('public'));
  * Streams a given mp3; if a user is logged in
  */
 app.get('/listen', function (req, res) {
-	var path = req.query.path, full = req.query.full;
+	var path = dir + req.query.path, full = req.query.full;
 	if (settings.loggedIn) {
 		fs.exists(path, function (exists) {
 			if (exists) {
@@ -144,7 +144,10 @@ app.listen(16881);
 
 
 /* scanner */
+
 var dir = "/volume1/music";
+
+/*
 // var dir = "d:/tmp";
 var list = [];
 var nrScanned = 0;
@@ -171,7 +174,7 @@ var extractData = function (data, file) {
 	list.push(track);
 }
 
-/* walk over a directory recursivly */
+// walk over a directory recursivly
 var walk = function (dir, done) {
 	var results = [];
 	fs.readdir(dir, function (err, list) {
@@ -205,7 +208,10 @@ var walk = function (dir, done) {
 var doParse = function (file, callback) {
 	// console.log("parse", file);
 	var parser = mm(fs.createReadStream(file), { duration: true }, function (err, result) {
-		if (err) throw err;
+		if (err) {
+		    console.error('error parsing file', file);
+		    if (callback) callback();
+		};
 		extractData(result, file);
 		nrScanned++;
 		if (callback) {
@@ -216,6 +222,9 @@ var doParse = function (file, callback) {
 var setupParse = function (results) {
 	if (!results) {
 		console.log('no results!');
+	}
+	if (nrScanned % 100 === 0) {
+	    console.log('scanned', nrScanned, 'nunbers');
 	}
 	if (results && results.length > 0) {
 		var file = results.pop();
@@ -239,3 +248,4 @@ walk(dir, function (err, results) {
 	console.log("starting scan for", totalFiles, "files");
 	setupParse(results);
 });
+*/
