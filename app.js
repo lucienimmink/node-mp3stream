@@ -140,6 +140,19 @@ app.post('/login', function (req, res) {
 logger.info("Starting node-mp3stream");
 app.listen(16881);
 
+app.get('/rescan', function (req, res) {
+	if (settings.loggedIn) {
+		walk(dir, function (err, results) {
+			totalFiles = (results) ? results.length : 0;
+			logger.info("starting scan for", totalFiles, "files");
+			setupParse(results);
+		});
+	} else {
+		logger.warn("User not authorized");
+		res.writeHead(401);
+		res.end();
+	}
+});
 
 
 
@@ -147,8 +160,8 @@ app.listen(16881);
 
 /* scanner */
 
-// var dir = "/volume1/music";
-var dir = "C:\\Users\\lucien.immink\\Music";
+var dir = "d:/tmp/";
+// var dir = "C:\\Users\\lucien.immink\\Music";
 var WORKERS = 30; // how many concurent streams do we want to handle?
 
 // var dir = "d:/tmp";
@@ -175,7 +188,7 @@ var Track = function (data, file) {
 var extractData = function (data, file, callback) {
 	var track = new Track(data, file);
 	list.push(track);
-	callback();
+	if (callback) callback();
 }
 
 // walk over a directory recursivly
