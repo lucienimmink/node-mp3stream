@@ -10,6 +10,17 @@ log4js.addAppender(log4js.appenders.file('logs/mp3stream.log'), 'mp3stream');
 var logger = log4js.getLogger('mp3stream');
 logger.setLevel('INFO');
 
+
+
+//var dir = "d:/tmp/";
+var dir = "C:\\Users\\lucien.immink\\Music";
+var WORKERS = 20; // how many concurent streams do we want to handle?
+
+// var dir = "d:/tmp";
+var list = [];
+var nrScanned = 0;
+
+
 /* CORS */
 var allowCrossDomain = function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
@@ -142,10 +153,15 @@ app.listen(16881);
 
 app.get('/rescan', function (req, res) {
 	if (settings.loggedIn) {
+        nrScanned = 0;
+        start = new Date();
 		walk(dir, function (err, results) {
 			totalFiles = (results) ? results.length : 0;
 			logger.info("starting scan for", totalFiles, "files");
+            list = [];
 			setupParse(results);
+            res.writeHead(204);
+		    res.end();
 		});
 	} else {
 		logger.warn("User not authorized");
@@ -153,20 +169,8 @@ app.get('/rescan', function (req, res) {
 		res.end();
 	}
 });
-
-
-
-
-
 /* scanner */
 
-var dir = "d:/tmp/";
-// var dir = "C:\\Users\\lucien.immink\\Music";
-var WORKERS = 30; // how many concurent streams do we want to handle?
-
-// var dir = "d:/tmp";
-var list = [];
-var nrScanned = 0;
 var start = new Date();
 
 var Track = function (data, file) {
