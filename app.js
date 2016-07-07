@@ -10,13 +10,9 @@ log4js.addAppender(log4js.appenders.file('logs/mp3stream.log'), 'mp3stream');
 var logger = log4js.getLogger('mp3stream');
 logger.setLevel('INFO');
 
+var dir = "/volume1/music";
+var WORKERS = 10; // how many concurent streams do we want to handle?
 
-
-//var dir = "d:/tmp/";
-var dir = "C:\\Users\\lucien.immink\\Music";
-var WORKERS = 20; // how many concurent streams do we want to handle?
-
-// var dir = "d:/tmp";
 var list = [];
 var nrScanned = 0;
 
