@@ -154,15 +154,13 @@ app.get('/rescan', function (req, res) {
 	}
 });
 
-
-
-
-
 /* scanner */
+var dir = "/volume1/music/";
 
-var dir = "d:/tmp/";
+
+
 // var dir = "C:\\Users\\lucien.immink\\Music";
-var WORKERS = 30; // how many concurent streams do we want to handle?
+var WORKERS = 10; // how many concurent streams do we want to handle?
 
 // var dir = "d:/tmp";
 var list = [];
@@ -250,9 +248,11 @@ var setupParse = function (results) {
 		});
 	}
 };
-
+/*
 walk(dir, function (err, results) {
 	totalFiles = (results) ? results.length : 0;
 	logger.info("starting scan for", totalFiles, "files");
 	setupParse(results);
 });
+*/
+
