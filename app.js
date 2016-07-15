@@ -10,7 +10,8 @@ log4js.addAppender(log4js.appenders.file('logs/mp3stream.log'), 'mp3stream');
 var logger = log4js.getLogger('mp3stream');
 logger.setLevel('INFO');
 
-var dir = "/volume1/music";
+// var dir = "/volume1/music";
+var dir = "c:\\users\\lucien.immink\\music";
 var WORKERS = 10; // how many concurent streams do we want to handle?
 
 var list = [];
@@ -165,6 +166,14 @@ app.get('/rescan', function (req, res) {
 		res.end();
 	}
 });
+
+// redirect everything to index if not in predefined list
+app.get(/^(?!\/rescan|\/listen|\/data\/.*|\/dist.*|\/global.*|\/systemjs.*|\/node_modules\/.*|\/app.*).*$/, function (req, res) {
+    res.sendfile('public/index.html');
+});
+
+
+
 var start = new Date();
 var Track = function (data, file) {
 	this.artist = data.artist[0];
@@ -247,11 +256,3 @@ var setupParse = function (results) {
 		});
 	}
 };
-/*
-walk(dir, function (err, results) {
-	totalFiles = (results) ? results.length : 0;
-	logger.info("starting scan for", totalFiles, "files");
-	setupParse(results);
-});
-*/
-
