@@ -168,7 +168,7 @@ app.get('/rescan', function (req, res) {
 });
 
 // redirect everything to index if not in predefined list
-app.get(/^(?!\/rescan|\/listen|\/data\/.*|\/dist.*|\/global.*|\/systemjs.*|\/node_modules\/.*|\/app.*).*$/, function (req, res) {
+app.get(/^(?!\/rescan|\/listen|\/data\/.*|\/dist.*|\/global.*|\/dist-systemjs.*|\/js\/.*|\/app.*|\/css\/.*|\/fonts\/.*|\/fonts\/glyphs\/.*).*$/, function (req, res) {
     res.sendfile('public/index.html');
 });
 
