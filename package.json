@@ -11,6 +11,7 @@
     "forever": "^0.15.2",
     "lodash": "^4.13.1",
     "log4js": "^0.6.37",
-    "musicmetadata": "^2.0.4"
+    "musicmetadata": "^2.0.4",
+    "sqlite3": "^3.1.4"
   }
 }

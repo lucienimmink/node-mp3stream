@@ -4,6 +4,9 @@ var app = express();
 var settings = {
 	loggedIn: true
 };
+
+var sqlite3 = require('sqlite3').verbose();
+
 // setup logging
 log4js.loadAppender('file');
 log4js.addAppender(log4js.appenders.file('logs/mp3stream.log'), 'mp3stream');
@@ -115,29 +118,25 @@ app.post('/login', function (req, res) {
 	// for now always accept the login
 	// send the response as JSONP
 	if (account && passwd) {
-		// have a sqlite db with users and passwords; it's not the responsibility of this app to create it.
-		var db = dblite('users.db');
-		db.query('SELECT * FROM users WHERE username = :account AND password = :passwd', {
-			account: account,
-			passwd: passwd
-		}, {
-				username: String,
-				passwd: String
-			}, function (rows) {
-				var user = rows.length && rows[0];
-				if (user.passwd === passwd) {
+		var db = new sqlite3.Database('./users.db');
+		db.serialize(function () {
+			db.get("SELECT * FROM users WHERE username = '" + account + "' AND password = '" + passwd + "'", function (err, row) {
+				if (row) {
+					logger.info("User " + account + " authenticated");
 					res.jsonp({
 						success: true
 					});
 					settings.loggedIn = true;
-					logger.info("User " + account + " authenticated");
 				} else {
+					logger.error("User " + account + " NOT authenticated");
 					res.jsonp({
 						success: false
 					});
-					logger.error("User " + account + " NOT authenticated");
+					settings.loggedIn = false;
 				}
 			});
+		});
+		db.close();
 	} else {
 		res.jsonp({
 			success: false
@@ -158,7 +157,7 @@ app.get('/rescan', function (req, res) {
             list = [];
 			setupParse(results);
             res.writeHead(204);
-		    res.end();
+			res.end();
 		});
 	} else {
 		logger.warn("User not authorized");
