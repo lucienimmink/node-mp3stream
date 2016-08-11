@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "async": "^2.0.0-rc.6",
+    "command-asker": "^0.3.2",
     "duration-format": "0.0.2",
     "express": "^3.21.2",
     "forever": "^0.15.2",
