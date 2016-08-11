@@ -9,9 +9,11 @@ var CommandAsker = require('command-asker');
 
 var config = require('./config.json');
 
+// enter interactive setup mode if the ask parameter is set
 if (config.ask) {
 	var a = new CommandAsker([
 		{ key: 'port', ask: 'On which port do you want to listen? ' },
+		{ key: 'path', ask: 'Where are the music files stored? ' },
 		{ key: 'username', ask: 'What username do you want to use to authenticate? ', required: true },
 		{ key: 'password', ask: 'What password do you want to use ? ', required: true }
 	]);
@@ -20,6 +22,7 @@ if (config.ask) {
 		// set the new config file
 		config.ask = false;
 		config.port = response.port;
+		config.path = response.path;
 		fs.writeFileSync('./config.json', JSON.stringify(config));
 
 		// setup the Database
@@ -44,7 +47,7 @@ if (config.ask) {
 	logger.setLevel('INFO');
 
 	// var dir = "/volume1/music";
-	var dir = "c:\\users\\lucien.immink\\music";
+	var dir = config.path;
 	var WORKERS = 10; // how many concurent streams do we want to handle?
 
 	var list = [];
