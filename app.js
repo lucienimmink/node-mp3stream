@@ -4,7 +4,7 @@ var app = express();
 var settings = {
 	loggedIn: true
 };
-var sqlite3 = require('sqlite3').verbose();
+var dblite = require('dblite');
 var CommandAsker = require('command-asker');
 
 var config = require('./config.json');
@@ -28,17 +28,12 @@ if (config.ask || !config.path) {
 		fs.writeFileSync('./config.json', JSON.stringify(config));
 
 		// setup the Database
-		var db = new sqlite3.Database('./users.db');
-		db.serialize(function () {
-			db.run("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)");
-			db.run("INSERT OR REPLACE INTO users VALUES('" + response.username + "', '" + response.password + "')");
-
-			db.get("SELECT * FROM users", function (err, row) {
-				console.log("Config and user database has been set-up. Restart the app to start streaming.");
-				a.close();
-			});
-		});
+		var db = dblite('./users.db');
+		db.query("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)");
+		db.query('INSERT OR REPLACE INTO users VALUES(?, ?)', [response.username, response.password]);
+		console.log("Config and user database has been set-up. Restart the app to start streaming.");
 		db.close();
+		a.close();
 	});
 } else if (addUserMode) {
 	var a = new CommandAsker([
@@ -47,16 +42,11 @@ if (config.ask || !config.path) {
 	]);
 	a.ask(function (response) {
 		// setup the Database
-		var db = new sqlite3.Database('./users.db');
-		db.serialize(function () {
-			db.run("INSERT OR REPLACE INTO users VALUES('" + response.username + "', '" + response.password + "')");
-
-			db.get("SELECT * FROM users", function (err, row) {
-				console.log("User has been added. Restart the app to start streaming.");
-				a.close();
-			});
-		});
+		var db = dblite('./users.db');
+		db.query('INSERT OR REPLACE INTO users VALUES(?, ?)', [response.username, response.password]);
+		console.log("Config and user database has been set-up. Restart the app to start streaming.");
 		db.close();
+		a.close();
 	});
 } else {
 
@@ -170,10 +160,16 @@ if (config.ask || !config.path) {
 		// for now always accept the login
 		// send the response as JSONP
 		if (account && passwd) {
-			var db = new sqlite3.Database('./users.db');
-			db.serialize(function () {
-				db.get("SELECT * FROM users WHERE username = '" + account + "' AND password = '" + passwd + "'", function (err, row) {
-					if (row) {
+			var db = dblite('users.db');
+			db.query('SELECT * FROM users WHERE username = :account AND password = :passwd', {
+				account: account,
+				passwd: passwd
+			}, {
+					username: String,
+					passwd: String
+				}, function (rows) {
+					var user = rows.length && rows[0];
+					if (user.passwd === passwd) {
 						logger.info("User " + account + " authenticated");
 						res.jsonp({
 							success: true
@@ -187,14 +183,13 @@ if (config.ask || !config.path) {
 						settings.loggedIn = false;
 					}
 				});
-			});
-			db.close();
 		} else {
 			res.jsonp({
 				success: false
 			});
 			logger.warn("No user specified, NOT authenticated");
 		}
+
 	});
 	logger.info("Starting node-mp3stream");
 	app.listen(config.port);
