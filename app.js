@@ -8,9 +8,11 @@ var sqlite3 = require('sqlite3').verbose();
 var CommandAsker = require('command-asker');
 
 var config = require('./config.json');
+var addUserMode = process.argv[2] === "adduser";
 
-// enter interactive setup mode if the ask parameter is set
-if (config.ask) {
+
+// enter interactive setup mode if the ask parameter is set or the path has not been set.
+if (config.ask || !config.path) {
 	var a = new CommandAsker([
 		{ key: 'port', ask: 'On which port do you want to listen? ' },
 		{ key: 'path', ask: 'Where are the music files stored? ' },
@@ -29,10 +31,28 @@ if (config.ask) {
 		var db = new sqlite3.Database('./users.db');
 		db.serialize(function () {
 			db.run("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)");
-			db.run("INSERT OR REPLACE INTO users VALUES('"+response.username+"', '"+response.password+"')");
+			db.run("INSERT OR REPLACE INTO users VALUES('" + response.username + "', '" + response.password + "')");
 
 			db.get("SELECT * FROM users", function (err, row) {
 				console.log("Config and user database has been set-up. Restart the app to start streaming.");
+				a.close();
+			});
+		});
+		db.close();
+	});
+} else if (addUserMode) {
+	var a = new CommandAsker([
+		{ key: 'username', ask: 'What username do you want to use to authenticate? ', required: true },
+		{ key: 'password', ask: 'What password do you want to use ? ', required: true }
+	]);
+	a.ask(function (response) {
+		// setup the Database
+		var db = new sqlite3.Database('./users.db');
+		db.serialize(function () {
+			db.run("INSERT OR REPLACE INTO users VALUES('" + response.username + "', '" + response.password + "')");
+
+			db.get("SELECT * FROM users", function (err, row) {
+				console.log("User has been added. Restart the app to start streaming.");
 				a.close();
 			});
 		});
@@ -46,7 +66,6 @@ if (config.ask) {
 	var logger = log4js.getLogger('mp3stream');
 	logger.setLevel('INFO');
 
-	// var dir = "/volume1/music";
 	var dir = config.path;
 	var WORKERS = 10; // how many concurent streams do we want to handle?
 
@@ -277,7 +296,7 @@ if (config.ask) {
 					logger.info('scanned', list.length, 'songs');
 				}
 				if (list.length === totalFiles) {
-					fs.writeFile('./public/data/node-music.json', JSON.stringify(list), function (err) {
+					fs.writeFile(config.musicdb, JSON.stringify(list), function (err) {
 						if (err) {
 							logger.error("err", err);
 						}
@@ -288,4 +307,17 @@ if (config.ask) {
 			});
 		}
 	};
+
+	var hasMusicDB = fs.existsSync(config.musicdb);
+	if (!hasMusicDB) {
+		// initiate a scan
+		nrScanned = 0;
+		start = new Date();
+		walk(dir, function (err, results) {
+			totalFiles = (results) ? results.length : 0;
+			logger.info("starting scan for", totalFiles, "files");
+			list = [];
+			setupParse(results);
+		});
+	}
 }
