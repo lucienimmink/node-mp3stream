@@ -29,11 +29,13 @@ if (config.ask || !config.path) {
 
 		// setup the Database
 		var db = dblite('./users.db');
-		db.query("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)");
-		db.query('INSERT OR REPLACE INTO users VALUES(?, ?)', [response.username, response.password]);
-		console.log("Config and user database has been set-up. Restart the app to start streaming.");
-		db.close();
-		a.close();
+		db.query("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)", function (err, res) {
+			db.query('INSERT OR REPLACE INTO users VALUES(?, ?)', [response.username, response.password], function (err, res) {
+				console.log("Config and user database has been set-up. Restart the app to start streaming.");
+				db.close();
+				a.close();
+			});
+		});
 	});
 } else if (addUserMode) {
 	var a = new CommandAsker([
@@ -43,10 +45,11 @@ if (config.ask || !config.path) {
 	a.ask(function (response) {
 		// setup the Database
 		var db = dblite('./users.db');
-		db.query('INSERT OR REPLACE INTO users VALUES(?, ?)', [response.username, response.password]);
-		console.log("Config and user database has been set-up. Restart the app to start streaming.");
-		db.close();
-		a.close();
+		db.query('INSERT OR REPLACE INTO users VALUES(?, ?)', [response.username, response.password], function (err, res) {
+			console.log("Config and user database has been set-up. Restart the app to start streaming.");
+			db.close();
+			a.close();
+		});
 	});
 } else {
 
