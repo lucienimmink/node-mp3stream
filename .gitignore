@@ -18,5 +18,4 @@ music.json
 json-local
 json-netwerk
 users.db
-sqlite3.exe
-public
+public/*
