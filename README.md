@@ -19,4 +19,4 @@ You can override the path to the musicdb file by setting the relative path in co
 `node app adduser`
 
 ## Add a website
-You can add your website in the /public folder. One site that is already fully configured and functional is [JSMusicDB Next](https://github.com/lucienimmink/JSMusicDBNext); place the compiled output (see details in the readme of JSMusicDB Next) in the public folder and you are all set.
+By default a prebuilt version of [JSMusicDB Next](https://github.com/lucienimmink/JSMusicDBNext) is installed and copied into the `/public` folder. If you do not wish to use JSMusicDBNext as the player set the config var `useJSMusicDB` to `false` in `config.json` and deploy your own website in `/public`
