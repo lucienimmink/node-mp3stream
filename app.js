@@ -6,6 +6,8 @@ var settings = {
 };
 var dblite = require('dblite');
 var CommandAsker = require('command-asker');
+var del = require('delete');
+var symlinkOrCopySync = require('symlink-or-copy').sync;
 
 var config = require('./config.json');
 var addUserMode = process.argv[2] === "adduser";
@@ -64,6 +66,15 @@ if (config.ask || !config.path) {
 
 	var list = [];
 	var nrScanned = 0;
+
+	if (config.useJSMusicDB) {
+		var filesAndFolders = ['css', 'fonts', 'global', 'js', 'index.html', 'manifest.json'];
+		// remove current build if present; this ensures we have the most up2date prebuilt binaries on all platforms
+		_.forEach(filesAndFolders, function(value) {
+			del.sync('public/' + value);
+			symlinkOrCopySync('node_modules/jsmusicdbnext-prebuilt/' + value, 'public/' + value);
+		});
+	}
 
 
 	/* CORS */

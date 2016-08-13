@@ -2,5 +2,6 @@
     "port": "16881",
     "ask": true,
     "path": null,
-    "musicdb": "./public/data/node-music.json"
+    "musicdb": "./public/data/node-music.json",
+    "useJSMusicDB": true
 }
