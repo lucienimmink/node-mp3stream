@@ -12,6 +12,7 @@ var symlinkOrCopySync = require('symlink-or-copy').sync;
 var config = require('./config.json');
 var addUserMode = process.argv[2] === "adduser";
 
+var jwt = require('jwt-simple');
 
 // enter interactive setup mode if the ask parameter is set or the path has not been set.
 if (config.ask || !config.path) {
@@ -70,7 +71,7 @@ if (config.ask || !config.path) {
 	if (config.useJSMusicDB) {
 		var filesAndFolders = ['css', 'fonts', 'global', 'js', 'index.html', 'manifest.json'];
 		// remove current build if present; this ensures we have the most up2date prebuilt binaries on all platforms
-		_.forEach(filesAndFolders, function(value) {
+		_.forEach(filesAndFolders, function (value) {
 			del.sync('public/' + value);
 			symlinkOrCopySync('node_modules/jsmusicdbnext-prebuilt/' + value, 'public/' + value);
 		});
@@ -81,7 +82,7 @@ if (config.ask || !config.path) {
 	var allowCrossDomain = function (req, res, next) {
 		res.header('Access-Control-Allow-Origin', '*');
 		res.header('Access-Control-Allow-Methods', 'GET');
-		res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+		res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-Cred');
 
 		res.setHeader("Cache-Control", "public, max-age=4320000"); // 12 hours
 		res.setHeader("Expires", new Date(Date.now() + 4320000).toUTCString());
@@ -170,7 +171,24 @@ if (config.ask || !config.path) {
 	 */
 	app.post('/login', function (req, res) {
 		logger.info("Starting authentication");
-		var account = req.body.account, passwd = req.body.passwd, server = req.query.server;
+		// decode the JWT token
+		var account, passwrd;
+		if (req.headers["x-cred"]) {
+			var decoded = jwt.decode(req.headers["x-cred"], 'jsmusicdbnext');
+			if (typeof decoded === 'string') {
+				decoded = JSON.parse(decoded);
+			}
+			account = decoded.name;
+			passwd = decoded.password;
+		} else {
+			console.error('We only allow JWT logins from now on');
+			res.jsonp({
+				success: false
+			});
+			return false;
+		}
+		
+
 		// for now always accept the login
 		// send the response as JSONP
 		if (account && passwd) {

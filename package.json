@@ -12,6 +12,7 @@
     "duration-format": "0.0.2",
     "express": "^3.21.2",
     "forever": "^0.15.2",
+    "jwt-simple": "^0.5.0",
     "lodash": "^4.13.1",
     "log4js": "^0.6.37",
     "musicmetadata": "^2.0.4",
