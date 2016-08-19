@@ -3,5 +3,8 @@
     "ask": true,
     "path": null,
     "musicdb": "./public/data/node-music.json",
-    "useJSMusicDB": true
+    "useJSMusicDB": true,
+    "useSSL": false,
+    "sslCert": "/usr/syno/etc/certificate/system/default/cert.pem",
+    "sslKey": "/usr/syno/etc/certificate/system/default/privkey.pem"
 }

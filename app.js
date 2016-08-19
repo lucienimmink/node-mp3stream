@@ -18,6 +18,7 @@ var jwt = require('jwt-simple');
 if (config.ask || !config.path) {
 	var a = new CommandAsker([
 		{ key: 'port', ask: 'On which port do you want to listen? ' },
+		{ key: 'ssl', ask: 'Do you want to use SSL? (yes/no)' },
 		{ key: 'path', ask: 'Where are the music files stored? ' },
 		{ key: 'username', ask: 'What username do you want to use to authenticate? ', required: true },
 		{ key: 'password', ask: 'What password do you want to use ? ', required: true }
@@ -28,6 +29,7 @@ if (config.ask || !config.path) {
 		config.ask = false;
 		config.port = response.port;
 		config.path = response.path;
+		config.useSSL = (response.ssl.toLowerCase() === 'yes' || response.ssl.toLowerCase() === 'true' || response.ssl === 1) ? true : false;
 		fs.writeFileSync('./config.json', JSON.stringify(config));
 
 		// setup the Database
@@ -35,6 +37,7 @@ if (config.ask || !config.path) {
 		db.query("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)", function (err, res) {
 			db.query('INSERT OR REPLACE INTO users VALUES(?, ?)', [response.username, response.password], function (err, res) {
 				console.log("Config and user database has been set-up. Restart the app to start streaming.");
+				if (config.useSSL) console.info("Please update the paths of the SSL cert and key. Most likely you have to restart the app as root");
 				db.close();
 				a.close();
 			});
@@ -224,7 +227,17 @@ if (config.ask || !config.path) {
 
 	});
 	logger.info("Starting node-mp3stream");
-	app.listen(config.port);
+	if (config.useSSL) {
+		var fs = require('fs');
+		var https = require('https');
+		var privateKey  = fs.readFileSync(config.sslKey, 'utf8');
+		var certificate = fs.readFileSync(config.sslCert, 'utf8');
+		var credentials = {key: privateKey, cert: certificate};
+		var httpsServer = https.createServer(credentials, app);
+		httpsServer.listen(config.port);
+	} else {
+		app.listen(config.port);
+	}
 
 	app.get('/rescan', function (req, res) {
 		if (settings.loggedIn) {
