@@ -13,6 +13,8 @@ var config = require('./config.json');
 var addUserMode = process.argv[2] === "adduser";
 
 var jwt = require('jwt-simple');
+var url = require('url');
+var request = require('request');
 
 // enter interactive setup mode if the ask parameter is set or the path has not been set.
 if (config.ask || !config.path) {
@@ -72,7 +74,7 @@ if (config.ask || !config.path) {
 	var nrScanned = 0;
 
 	if (config.useJSMusicDB) {
-		var filesAndFolders = ['css', 'fonts', 'global', 'js', 'index.html', 'manifest.json'];
+		var filesAndFolders = ['css', 'fonts', 'global', 'js', 'index.html', 'manifest.json', 'sw.js'];
 		// remove current build if present; this ensures we have the most up2date prebuilt binaries on all platforms
 		_.forEach(filesAndFolders, function (value) {
 			del.sync('public/' + value);
@@ -190,7 +192,7 @@ if (config.ask || !config.path) {
 			});
 			return false;
 		}
-		
+
 
 		// for now always accept the login
 		// send the response as JSONP
@@ -230,9 +232,9 @@ if (config.ask || !config.path) {
 	if (config.useSSL) {
 		var fs = require('fs');
 		var https = require('https');
-		var privateKey  = fs.readFileSync(config.sslKey, 'utf8');
+		var privateKey = fs.readFileSync(config.sslKey, 'utf8');
 		var certificate = fs.readFileSync(config.sslCert, 'utf8');
-		var credentials = {key: privateKey, cert: certificate};
+		var credentials = { key: privateKey, cert: certificate };
 		var httpsServer = https.createServer(credentials, app);
 		httpsServer.listen(config.port);
 	} else {
@@ -258,8 +260,22 @@ if (config.ask || !config.path) {
 		}
 	});
 
+	app.get('/data/image-proxy', function (req, res) {
+		var queryData = url.parse(req.url, true).query;
+		if (queryData.url) {
+			request({
+				url: queryData.url
+			}).on('error', function (e) {
+				res.end(e);
+			}).pipe(res);
+		}
+		else {
+			res.end("no url found");
+		}
+	});
+
 	// redirect everything to index if not in predefined list
-	app.get(/^(?!\/rescan|\/listen|\/data\/.*|\/dist.*|\/global.*|\/dist-systemjs.*|\/js\/.*|\/app.*|\/css\/.*|\/fonts\/.*|\/fonts\/glyphs\/.*).*$/, function (req, res) {
+	app.get(/^(?!\/rescan|\/listen|\/data\/.*|\/dist.*|\/global.*|\/dist-systemjs.*|\/sw.js|\/manifest.json|\/js\/.*|\/app.*|\/css\/.*|\/fonts\/.*|\/fonts\/glyphs\/.*).*$/, function (req, res) {
 		res.sendfile('public/index.html');
 	});
 
