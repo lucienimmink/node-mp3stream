@@ -26,8 +26,7 @@ var parseToken = function (token) {
 	return decoded;
 };
 
-var checkUser = function (account, passwd) {
-	var ret = false;
+var checkUser = function (account, passwd, cb) {
 	if (account && passwd) {
 		var db = dblite('users.db');
 		db.query('SELECT * FROM users WHERE username = :account AND password = :passwd', {
@@ -40,22 +39,21 @@ var checkUser = function (account, passwd) {
 				var user = rows.length && rows[0];
 				if (user.passwd === passwd) {
 					logger.info("User " + account + " authenticated");
-					ret = true;
+					cb(true)
 				} else {
 					logger.error("User " + account + " NOT authenticated");
-					ret = true;
+					cb(false);
 				}
 			});
 	} else {
 		logger.warn("No user specified, NOT authenticated");
-		ret = false;
+		cb(false);
 	}
-	return ret;
 };
 
-var validateJwt = function (jwt) {
+var validateJwt = function (jwt, cb) {
 	var decoded = parseToken(jwt);
-	return checkUser(decoded.name, decoded.password);
+	checkUser(decoded.name, decoded.password, cb);
 };
 
 // enter interactive setup mode if the ask parameter is set or the path has not been set.
@@ -158,57 +156,59 @@ if (config.ask || !config.path) {
 	 */
 	app.get('/listen', function (req, res) {
 		var path = dir + req.query.path, full = req.query.full, jwt = req.query.jwt;
-		if (validateJwt(jwt)) {
-			fs.exists(path, function (exists) {
-				if (exists) {
-					if (!full) {
-						logger.info("going to partial stream " + path);
-						fs.readFile(path, 'binary', function (err, file) {
-							var header = {};
-							var range = req.headers.range;
-							var parts = range.replace(/bytes=/, "").split("-");
-							var partialstart = parts[0];
-							var partialend = parts[1];
+		validateJwt(jwt, function (val) {
+			if (val) {
+				fs.exists(path, function (exists) {
+					if (exists) {
+						if (!full) {
+							logger.info("going to partial stream " + path);
+							fs.readFile(path, 'binary', function (err, file) {
+								var header = {};
+								var range = req.headers.range;
+								var parts = range.replace(/bytes=/, "").split("-");
+								var partialstart = parts[0];
+								var partialend = parts[1];
 
-							var total = file.length;
+								var total = file.length;
 
-							var start = parseInt(partialstart, 10);
-							var end = partialend ? parseInt(partialend, 10) : total - 1;
+								var start = parseInt(partialstart, 10);
+								var end = partialend ? parseInt(partialend, 10) : total - 1;
 
-							header["Content-Range"] = "bytes " + start + "-" + end + "/" + (total);
-							header["Accept-Ranges"] = "bytes";
-							header["Content-Length"] = (end - start) + 1;
-							header["Connection"] = "close";
+								header["Content-Range"] = "bytes " + start + "-" + end + "/" + (total);
+								header["Accept-Ranges"] = "bytes";
+								header["Content-Length"] = (end - start) + 1;
+								header["Connection"] = "close";
 
-							res.writeHead(206, header);
-							res.write(file.slice(start, end) + '0', "binary");
-							res.end();
-							return;
-						});
+								res.writeHead(206, header);
+								res.write(file.slice(start, end) + '0', "binary");
+								res.end();
+								return;
+							});
+						} else {
+							logger.info("going to fully stream " + path);
+							var stat = fs.statSync(path);
+
+							res.writeHead(200, {
+								'Content-Type': 'audio/mpeg',
+								'Content-Length': stat.size
+							});
+
+							var readStream = fs.createReadStream(path);
+							readStream.pipe(res);
+						}
+
 					} else {
-						logger.info("going to fully stream " + path);
-						var stat = fs.statSync(path);
-
-						res.writeHead(200, {
-							'Content-Type': 'audio/mpeg',
-							'Content-Length': stat.size
-						});
-
-						var readStream = fs.createReadStream(path);
-						readStream.pipe(res);
+						logger.warn("no file with name " + path + " found");
+						res.writeHead(404);
+						res.end();
 					}
-
-				} else {
-					logger.warn("no file with name " + path + " found");
-					res.writeHead(404);
-					res.end();
-				}
-			});
-		} else {
-			logger.warn("User not authorized");
-			res.writeHead(401);
-			res.end();
-		}
+				});
+			} else {
+				logger.warn("User not authorized");
+				res.writeHead(401);
+				res.end();
+			}
+		});
 	});
 
 
@@ -230,8 +230,10 @@ if (config.ask || !config.path) {
 			});
 			return false;
 		}
-		res.jsonp({
-			success: checkUser(account, passwd)
+		checkUser(account, passwd, function (val) {
+			res.jsonp({
+				success: val
+			});
 		});
 	});
 	logger.info("Starting node-mp3stream");
@@ -249,22 +251,24 @@ if (config.ask || !config.path) {
 
 	app.get('/rescan', function (req, res) {
 		var jwt = req.query.jwt;
-		if (validateJwt(jwt)) {
-			nrScanned = 0;
-			start = new Date();
-			walk(dir, function (err, results) {
-				totalFiles = (results) ? results.length : 0;
-				logger.info("starting scan for", totalFiles, "files");
-				list = [];
-				setupParse(results);
-				res.writeHead(204);
+		validateJwt(jwt, function (val) {
+			if (val) {
+				nrScanned = 0;
+				start = new Date();
+				walk(dir, function (err, results) {
+					totalFiles = (results) ? results.length : 0;
+					logger.info("starting scan for", totalFiles, "files");
+					list = [];
+					setupParse(results);
+					res.writeHead(204);
+					res.end();
+				});
+			} else {
+				logger.warn("User not authorized");
+				res.writeHead(401);
 				res.end();
-			});
-		} else {
-			logger.warn("User not authorized");
-			res.writeHead(401);
-			res.end();
-		}
+			}
+		});
 	});
 
 	app.get('/data/image-proxy', function (req, res) {
