@@ -152,7 +152,7 @@ if (config.ask || !config.path) {
 	app.use(express.static('public'));
 
 	/**
-	 * Streams a given mp3; if a user is logged in
+	 * Streams a given mp3; use the JWT token to validate the user.
 	 */
 	app.get('/listen', function (req, res) {
 		var path = dir + req.query.path, full = req.query.full, jwt = req.query.jwt;
@@ -249,6 +249,7 @@ if (config.ask || !config.path) {
 		app.listen(config.port);
 	}
 
+	// initiate a rescan of the collection (based on JavaScript, but we could also spawn a seperate process if set in config)
 	app.get('/rescan', function (req, res) {
 		var jwt = req.query.jwt;
 		validateJwt(jwt, function (val) {
@@ -271,6 +272,7 @@ if (config.ask || !config.path) {
 		});
 	});
 
+	// proxy resources (fixes cors issues, http vs https etc, more control over the origin of the resources).
 	app.get('/data/image-proxy', function (req, res) {
 		var queryData = url.parse(req.url, true).query;
 		if (queryData.url) {
@@ -290,6 +292,8 @@ if (config.ask || !config.path) {
 		res.sendfile('public/index.html');
 	});
 }
+
+// scanner; can move this to a seperate file and require the module.
 
 var Track = function (data, file) {
 	this.artist = data.artist[0];
