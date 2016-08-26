@@ -16,6 +16,48 @@ var jwt = require('jwt-simple');
 var url = require('url');
 var request = require('request');
 
+var start = new Date();
+
+var parseToken = function (token) {
+	var decoded = jwt.decode(token, 'jsmusicdbnext')
+	if (typeof decoded === 'string') {
+		decoded = JSON.parse(decoded);
+	}
+	return decoded;
+};
+
+var checkUser = function (account, passwd) {
+	var ret = false;
+	if (account && passwd) {
+		var db = dblite('users.db');
+		db.query('SELECT * FROM users WHERE username = :account AND password = :passwd', {
+			account: account,
+			passwd: passwd
+		}, {
+				username: String,
+				passwd: String
+			}, function (rows) {
+				var user = rows.length && rows[0];
+				if (user.passwd === passwd) {
+					logger.info("User " + account + " authenticated");
+					ret = true;
+				} else {
+					logger.error("User " + account + " NOT authenticated");
+					ret = true;
+				}
+			});
+	} else {
+		logger.warn("No user specified, NOT authenticated");
+		ret = false;
+	}
+	return ret;
+};
+
+var validateJwt = function (jwt) {
+	var decoded = parseToken(jwt);
+	return checkUser(decoded.name, decoded.password);
+};
+
 // enter interactive setup mode if the ask parameter is set or the path has not been set.
 if (config.ask || !config.path) {
 	var a = new CommandAsker([
@@ -115,8 +157,8 @@ if (config.ask || !config.path) {
 	 * Streams a given mp3; if a user is logged in
 	 */
 	app.get('/listen', function (req, res) {
-		var path = dir + req.query.path, full = req.query.full;
-		if (settings.loggedIn) {
+		var path = dir + req.query.path, full = req.query.full, jwt = req.query.jwt;
+		if (validateJwt(jwt)) {
 			fs.exists(path, function (exists) {
 				if (exists) {
 					if (!full) {
@@ -153,7 +195,6 @@ if (config.ask || !config.path) {
 						});
 
 						var readStream = fs.createReadStream(path);
-						// We replaced all the event handlers with a simple call to util.pump()
 						readStream.pipe(res);
 					}
 
@@ -179,10 +220,7 @@ if (config.ask || !config.path) {
 		// decode the JWT token
 		var account, passwrd;
 		if (req.headers["x-cred"]) {
-			var decoded = jwt.decode(req.headers["x-cred"], 'jsmusicdbnext');
-			if (typeof decoded === 'string') {
-				decoded = JSON.parse(decoded);
-			}
+			var decoded = parseToken(req.headers["x-cred"]);
 			account = decoded.name;
 			passwd = decoded.password;
 		} else {
@@ -192,41 +230,9 @@ if (config.ask || !config.path) {
 			});
 			return false;
 		}
-
-
-		// for now always accept the login
-		// send the response as JSONP
-		if (account && passwd) {
-			var db = dblite('users.db');
-			db.query('SELECT * FROM users WHERE username = :account AND password = :passwd', {
-				account: account,
-				passwd: passwd
-			}, {
-					username: String,
-					passwd: String
-				}, function (rows) {
-					var user = rows.length && rows[0];
-					if (user.passwd === passwd) {
-						logger.info("User " + account + " authenticated");
-						res.jsonp({
-							success: true
-						});
-						settings.loggedIn = true;
-					} else {
-						logger.error("User " + account + " NOT authenticated");
-						res.jsonp({
-							success: false
-						});
-						settings.loggedIn = false;
-					}
-				});
-		} else {
-			res.jsonp({
-				success: false
-			});
-			logger.warn("No user specified, NOT authenticated");
-		}
-
+		res.jsonp({
+			success: checkUser(account, passwd)
+		});
 	});
 	logger.info("Starting node-mp3stream");
 	if (config.useSSL) {
@@ -242,7 +248,8 @@ if (config.ask || !config.path) {
 	}
 
 	app.get('/rescan', function (req, res) {
-		if (settings.loggedIn) {
+		var jwt = req.query.jwt;
+		if (validateJwt(jwt)) {
 			nrScanned = 0;
 			start = new Date();
 			walk(dir, function (err, results) {
@@ -278,102 +285,99 @@ if (config.ask || !config.path) {
 	app.get(/^(?!\/rescan|\/listen|\/data\/.*|\/dist.*|\/global.*|\/dist-systemjs.*|\/sw.js|\/manifest.json|\/js\/.*|\/app.*|\/css\/.*|\/fonts\/.*|\/fonts\/glyphs\/.*).*$/, function (req, res) {
 		res.sendfile('public/index.html');
 	});
+}
+
+var Track = function (data, file) {
+	this.artist = data.artist[0];
+	this.albumartist = data.albumartist[0];
+	this.album = data.album;
+	this.year = data.year;
+	this.number = data.track.no;
+	this.disc = data.disk.no;
+	this.title = data.title;
+	this.duration = data.duration * 1000;
+	this.id = this.artist + "|" + this.album + "|" + this.number + "|" + this.title;
+	var f = file.toString();
+	var secretIndex = dir.length;
+	this.path = f.substring(secretIndex);
+};
 
 
+var extractData = function (data, file, callback) {
+	var track = new Track(data, file);
+	list.push(track);
+	if (callback) callback();
+}
 
-	var start = new Date();
-	var Track = function (data, file) {
-		this.artist = data.artist[0];
-		this.albumartist = data.albumartist[0];
-		this.album = data.album;
-		this.year = data.year;
-		this.number = data.track.no;
-		this.disc = data.disk.no;
-		this.title = data.title;
-		this.duration = data.duration * 1000;
-		this.id = this.artist + "|" + this.album + "|" + this.number + "|" + this.title;
-		var f = file.toString();
-		var secretIndex = dir.length;
-		this.path = f.substring(secretIndex);
-	};
-
-
-	var extractData = function (data, file, callback) {
-		var track = new Track(data, file);
-		list.push(track);
-		if (callback) callback();
-	}
-
-	// walk over a directory recursivly
-	var walk = function (dir, done) {
-		var results = [];
-		fs.readdir(dir, function (err, list) {
-			if (err)
-				return done(err);
-			var i = 0;
-			(function next() {
-				var file = list[i++];
-				if (!file)
-					return done(null, results);
-				file = dir + '/' + file;
-				fs.stat(file, function (err, stat) {
-					if (stat && stat.isDirectory()) {
-						walk(file, function (err, res) {
-							results = results.concat(res);
-							next();
-						});
-					} else {
-						var ext = file.split(".");
-						ext = ext[ext.length - 1];
-						if (ext === 'mp3') {
-							results.push(file);
-						}
+// walk over a directory recursivly
+var walk = function (dir, done) {
+	var results = [];
+	fs.readdir(dir, function (err, list) {
+		if (err)
+			return done(err);
+		var i = 0;
+		(function next() {
+			var file = list[i++];
+			if (!file)
+				return done(null, results);
+			file = dir + '/' + file;
+			fs.stat(file, function (err, stat) {
+				if (stat && stat.isDirectory()) {
+					walk(file, function (err, res) {
+						results = results.concat(res);
 						next();
-					}
-				});
-			})();
-		});
-	};
-
-	var setupParse = function (results) {
-
-		var q = async.queue(function (fileName, callback) {
-			var parser = mm(fs.createReadStream(fileName), { duration: true }, function (err, result) {
-				if (err) {
-					callback();
-				}
-				extractData(result, fileName, callback);
-			});
-		}, WORKERS);
-
-		if (results) {
-			q.push(results, function (err) {
-				if (list.length % 250 === 0) {
-					logger.info('scanned', list.length, 'songs');
-				}
-				if (list.length === totalFiles) {
-					fs.writeFile(config.musicdb, JSON.stringify(list), function (err) {
-						if (err) {
-							logger.error("err", err);
-						}
-						var stop = new Date();
-						logger.info("Done scanning, time taken:", df(stop - start, '#{2H}:#{2M}:#{2S}'));
 					});
+				} else {
+					var ext = file.split(".");
+					ext = ext[ext.length - 1];
+					if (ext === 'mp3') {
+						results.push(file);
+					}
+					next();
 				}
 			});
-		}
-	};
+		})();
+	});
+};
 
-	var hasMusicDB = fs.existsSync(config.musicdb);
-	if (!hasMusicDB) {
-		// initiate a scan
-		nrScanned = 0;
-		start = new Date();
-		walk(dir, function (err, results) {
-			totalFiles = (results) ? results.length : 0;
-			logger.info("starting scan for", totalFiles, "files");
-			list = [];
-			setupParse(results);
+var setupParse = function (results) {
+
+	var q = async.queue(function (fileName, callback) {
+		var parser = mm(fs.createReadStream(fileName), { duration: true }, function (err, result) {
+			if (err) {
+				callback();
+			}
+			extractData(result, fileName, callback);
+		});
+	}, WORKERS);
+
+	if (results) {
+		q.push(results, function (err) {
+			if (list.length % 250 === 0) {
+				logger.info('scanned', list.length, 'songs');
+			}
+			if (list.length === totalFiles) {
+				fs.writeFile(config.musicdb, JSON.stringify(list), function (err) {
+					if (err) {
+						logger.error("err", err);
+					}
+					var stop = new Date();
+					logger.info("Done scanning, time taken:", df(stop - start, '#{2H}:#{2M}:#{2S}'));
+				});
+			}
 		});
 	}
+};
+
+var hasMusicDB = fs.existsSync(config.musicdb);
+if (!hasMusicDB) {
+	// initiate a scan
+	nrScanned = 0;
+	start = new Date();
+	walk(dir, function (err, results) {
+		totalFiles = (results) ? results.length : 0;
+		logger.info("starting scan for", totalFiles, "files");
+		list = [];
+		setupParse(results);
+	});
 }
