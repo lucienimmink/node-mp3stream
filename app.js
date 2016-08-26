@@ -17,6 +17,7 @@ var url = require('url');
 var request = require('request');
 
 var start = new Date();
+var knownJWTTokens = {};
 
 var parseToken = function (token) {
 	var decoded = jwt.decode(token, 'jsmusicdbnext')
@@ -26,7 +27,7 @@ var parseToken = function (token) {
 	return decoded;
 };
 
-var checkUser = function (account, passwd, cb) {
+var checkUser = function (account, passwd, cb, jwt) {
 	if (account && passwd) {
 		var db = dblite('users.db');
 		db.query('SELECT * FROM users WHERE username = :account AND password = :passwd', {
@@ -39,21 +40,28 @@ var checkUser = function (account, passwd, cb) {
 				var user = rows.length && rows[0];
 				if (user.passwd === passwd) {
 					logger.info("User " + account + " authenticated");
+					knownJWTTokens[jwt] = true;
 					cb(true)
 				} else {
 					logger.error("User " + account + " NOT authenticated");
+					knownJWTTokens[jwt] = false;
 					cb(false);
 				}
 			});
 	} else {
 		logger.warn("No user specified, NOT authenticated");
+		knownJWTTokens[jwt] = false;
 		cb(false);
 	}
 };
 
 var validateJwt = function (jwt, cb) {
-	var decoded = parseToken(jwt);
-	checkUser(decoded.name, decoded.password, cb);
+	if (!knownJWTTokens[jwt]) {
+		var decoded = parseToken(jwt);
+		checkUser(decoded.name, decoded.password, cb, jwt);
+	} else {
+		cb(true);
+	}
 };
 
 // enter interactive setup mode if the ask parameter is set or the path has not been set.
