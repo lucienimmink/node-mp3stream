@@ -5,6 +5,6 @@
     "musicdb": "./public/data/node-music.json",
     "useJSMusicDB": true,
     "useSSL": false,
-    "sslCert": "/usr/syno/etc/certificate/system/default/cert.pem",
+    "sslCert": "/usr/syno/etc/certificate/system/default/fullchain.pem",
     "sslKey": "/usr/syno/etc/certificate/system/default/privkey.pem"
 }
