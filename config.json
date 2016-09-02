@@ -1,7 +1,7 @@
 {
     "port": "16881",
-    "ask": true,
-    "path": null,
+    "ask": false,
+    "path": "c:\\users\\lucien.immink\\Music\\",
     "musicdb": "./public/data/node-music.json",
     "useJSMusicDB": true,
     "useSSL": false,
