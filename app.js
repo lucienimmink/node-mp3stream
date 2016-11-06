@@ -146,7 +146,6 @@ if (config.ask || !config.path) {
 			next();
 		}
 	};
-
 	app.configure(function () {
 		app.use(allowCrossDomain);
 		app.use(express.bodyParser());
@@ -262,16 +261,9 @@ if (config.ask || !config.path) {
 		var jwt = req.query.jwt;
 		validateJwt(jwt, function (val) {
 			if (val) {
-				nrScanned = 0;
-				start = new Date();
-				walk(dir, function (err, results) {
-					totalFiles = (results) ? results.length : 0;
-					logger.info("starting scan for", totalFiles, "files");
-					list = [];
-					setupParse(results);
-					res.writeHead(204);
-					res.end();
-				});
+				initiateScan();
+				res.writeHead(204);
+				res.end();
 			} else {
 				logger.warn("User not authorized");
 				res.writeHead(401);
@@ -386,14 +378,37 @@ var setupParse = function (results) {
 };
 
 var hasMusicDB = fs.existsSync(config.musicdb);
-if (!hasMusicDB) {
-	// initiate a scan
-	nrScanned = 0;
-	start = new Date();
-	walk(dir, function (err, results) {
-		totalFiles = (results) ? results.length : 0;
-		logger.info("starting scan for", totalFiles, "files");
-		list = [];
-		setupParse(results);
-	});
+
+if (!hasMusicDB && config.path) {
+	initiateScan();
 }
+
+function initiateScan() {
+	var exec = require('child_process').exec;
+	exec('python --version', function (error, stdout, stderr) {
+		var out = stdout = stderr;
+		var hasPython = false;
+		if (out.indexOf('2.') !== 0) {
+			logger.info('python is installed');
+			hasPython = true;
+		}
+		start = new Date();
+		if (hasPython) {
+			// spawn python process
+			var outdir = config.musicdb;
+			outdir = outdir.substring(0, outdir.indexOf('node-music.json'));
+			exec('python ./node_modules/scanner.py/scanner.py ' + dir + ' --destpath ' + outdir, function (error, stdout, stderr) {
+				logger.info(stdout);
+			});
+		} else {
+			nrScanned = 0;
+			start = new Date();
+			walk(dir, function (err, results) {
+				totalFiles = (results) ? results.length : 0;
+				logger.info("starting scan for", totalFiles, "files");
+				list = [];
+				setupParse(results);
+			});
+		}
+	});
+};
