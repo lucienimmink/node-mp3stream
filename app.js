@@ -169,7 +169,7 @@ if (config.ask || !config.path) {
 				fs.exists(path, function (exists) {
 					if (exists) {
 						if (!full) {
-							logger.info("going to partial stream " + path);
+							logger.debug("going to partial stream " + path);
 							fs.readFile(path, 'binary', function (err, file) {
 								var header = {};
 								var range = req.headers.range;
