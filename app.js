@@ -272,6 +272,40 @@ if (config.ask || !config.path) {
 		});
 	});
 
+	app.get('/progress', function (req, res) {
+		var jwt = req.query.jwt;
+		validateJwt(jwt, function (val) {
+			if (val) {
+				// progress should be written to the output folder as a file progress.txt containing the actual percentage
+				var hasProgressFile = false;
+				try {
+					hasProgressFile = fs.statSync('public/data/progress.txt').isFile();
+				} catch (e) {
+					hasProgressFile = false;
+				}
+				// console.log('has progress file? ', hasProgressFile);
+				if (hasProgressFile) {
+					var progress = fs.readFileSync('public/data/progress.txt', 'utf8');
+					res.writeHead(200);
+					res.write(JSON.stringify({
+						progress: progress,
+						status: (progress === 100) ? 'ready' : 'scanning'
+					}));
+				} else {
+					res.writeHead(200);
+					res.write(JSON.stringify({
+						status: 'ready'
+					}));
+				}
+				res.end();
+			} else {
+				logger.warn("User not authorized");
+				res.writeHead(401);
+				res.end();
+			}
+		})
+	});
+
 	// proxy resources (fixes cors issues, http vs https etc, more control over the origin of the resources).
 	app.get('/data/image-proxy', function (req, res) {
 		var queryData = url.parse(req.url, true).query;
@@ -288,7 +322,7 @@ if (config.ask || !config.path) {
 	});
 
 	// redirect everything to index if not in predefined list
-	app.get(/^(?!\/rescan|\/listen|\/data\/.*|\/dist.*|\/global.*|\/dist-systemjs.*|\/sw.js|\/manifest.json|\/js\/.*|\/app.*|\/css\/.*|\/fonts\/.*|\/fonts\/glyphs\/.*).*$/, function (req, res) {
+	app.get(/^(?!\/rescan|\/listen|\/progress|\/data\/.*|\/dist.*|\/global.*|\/dist-systemjs.*|\/sw.js|\/manifest.json|\/js\/.*|\/app.*|\/css\/.*|\/fonts\/.*|\/fonts\/glyphs\/.*).*$/, function (req, res) {
 		res.sendfile('public/index.html');
 	});
 }
