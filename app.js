@@ -289,7 +289,7 @@ if (config.ask || !config.path) {
 					res.writeHead(200);
 					res.write(JSON.stringify({
 						progress: progress,
-						status: (progress === 100) ? 'ready' : 'scanning'
+						status: (progress == 100) ? 'ready' : 'scanning'
 					}));
 				} else {
 					res.writeHead(200);
