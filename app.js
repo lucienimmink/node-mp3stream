@@ -1,5 +1,14 @@
-var express = require('express'), fs = require('fs'), dblite = require('dblite'), log4js = require('log4js');
-var fs = require('fs'), app = module.exports, mm = require('musicmetadata'), util = require('util'), _ = require("lodash"), async = require("async"), df = require("duration-format");
+var express = require('express'),
+	fs = require('fs'),
+	dblite = require('dblite'),
+	log4js = require('log4js');
+var fs = require('fs'),
+	app = module.exports,
+	mm = require('musicmetadata'),
+	util = require('util'),
+	_ = require("lodash"),
+	async = require("async"),
+	df = require("duration-format");
 var app = express();
 var settings = {
 	loggedIn: true
@@ -34,20 +43,20 @@ var checkUser = function (account, passwd, cb, jwt) {
 			account: account,
 			passwd: passwd
 		}, {
-				username: String,
-				passwd: String
-			}, function (rows) {
-				var user = rows.length && rows[0];
-				if (user.passwd === passwd) {
-					logger.info("User " + account + " authenticated");
-					knownJWTTokens[jwt] = true;
-					cb(true)
-				} else {
-					logger.error("User " + account + " NOT authenticated");
-					knownJWTTokens[jwt] = false;
-					cb(false);
-				}
-			});
+			username: String,
+			passwd: String
+		}, function (rows) {
+			var user = rows.length && rows[0];
+			if (user.passwd === passwd) {
+				logger.info("User " + account + " authenticated");
+				knownJWTTokens[jwt] = true;
+				cb(true)
+			} else {
+				logger.error("User " + account + " NOT authenticated");
+				knownJWTTokens[jwt] = false;
+				cb(false);
+			}
+		});
 	} else {
 		logger.warn("No user specified, NOT authenticated");
 		knownJWTTokens[jwt] = false;
@@ -66,12 +75,28 @@ var validateJwt = function (jwt, cb) {
 
 // enter interactive setup mode if the ask parameter is set or the path has not been set.
 if (config.ask || !config.path) {
-	var a = new CommandAsker([
-		{ key: 'port', ask: 'On which port do you want to listen? ' },
-		{ key: 'ssl', ask: 'Do you want to use SSL? (yes/no)' },
-		{ key: 'path', ask: 'Where are the music files stored? ' },
-		{ key: 'username', ask: 'What username do you want to use to authenticate? ', required: true },
-		{ key: 'password', ask: 'What password do you want to use ? ', required: true }
+	var a = new CommandAsker([{
+			key: 'port',
+			ask: 'On which port do you want to listen? '
+		},
+		{
+			key: 'ssl',
+			ask: 'Do you want to use SSL? (yes/no)'
+		},
+		{
+			key: 'path',
+			ask: 'Where are the music files stored? '
+		},
+		{
+			key: 'username',
+			ask: 'What username do you want to use to authenticate? ',
+			required: true
+		},
+		{
+			key: 'password',
+			ask: 'What password do you want to use ? ',
+			required: true
+		}
 	]);
 
 	a.ask(function (response) {
@@ -94,9 +119,16 @@ if (config.ask || !config.path) {
 		});
 	});
 } else if (addUserMode) {
-	var a = new CommandAsker([
-		{ key: 'username', ask: 'What username do you want to use to authenticate? ', required: true },
-		{ key: 'password', ask: 'What password do you want to use ? ', required: true }
+	var a = new CommandAsker([{
+			key: 'username',
+			ask: 'What username do you want to use to authenticate? ',
+			required: true
+		},
+		{
+			key: 'password',
+			ask: 'What password do you want to use ? ',
+			required: true
+		}
 	]);
 	a.ask(function (response) {
 		// setup the Database
@@ -158,11 +190,20 @@ if (config.ask || !config.path) {
 	 * Streams a given mp3; use the JWT token to validate the user.
 	 */
 	app.get('/listen', function (req, res) {
-		var path = dir + req.query.path, full = req.query.full, jwt = req.query.jwt;
+		var path = dir + req.query.path,
+			full = req.query.full,
+			jwt = req.query.jwt;
 		validateJwt(jwt, function (val) {
 			if (val) {
 				fs.exists(path, function (exists) {
 					if (exists) {
+						var mime = 'audio/mpeg';
+
+						if (path.indexOf('.flac') !== -1) {
+							mime = 'audio/flac';
+						} else if (path.indexOf('.m4a') !== -1) {
+							mime = 'audio/mp4a-latm';
+						}
 						if (!full) {
 							logger.debug("going to partial stream " + path);
 							fs.readFile(path, 'binary', function (err, file) {
@@ -181,6 +222,7 @@ if (config.ask || !config.path) {
 								header["Accept-Ranges"] = "bytes";
 								header["Content-Length"] = (end - start) + 1;
 								header["Connection"] = "close";
+								header["Content-Type"] = mime;
 
 								res.writeHead(206, header);
 								res.write(file.slice(start, end) + '0', "binary");
@@ -188,11 +230,12 @@ if (config.ask || !config.path) {
 								return;
 							});
 						} else {
-							logger.info("going to fully stream " + path);
+							logger.debug("going to fully stream " + path);
 							var stat = fs.statSync(path);
 
+
 							res.writeHead(200, {
-								'Content-Type': 'audio/mpeg',
+								'Content-Type': mime,
 								'Content-Length': stat.size
 							});
 
@@ -245,7 +288,10 @@ if (config.ask || !config.path) {
 		var https = require('https');
 		var privateKey = fs.readFileSync(config.sslKey, 'utf8');
 		var certificate = fs.readFileSync(config.sslCert, 'utf8');
-		var credentials = { key: privateKey, cert: certificate };
+		var credentials = {
+			key: privateKey,
+			cert: certificate
+		};
 		var httpsServer = https.createServer(credentials, app);
 		httpsServer.listen(config.port);
 	} else {
@@ -311,8 +357,7 @@ if (config.ask || !config.path) {
 			}).on('error', function (e) {
 				res.end(e);
 			}).pipe(res);
-		}
-		else {
+		} else {
 			res.end("no url found");
 		}
 	});
@@ -381,7 +426,9 @@ var walk = function (dir, done) {
 var setupParse = function (results) {
 
 	var q = async.queue(function (fileName, callback) {
-		var parser = mm(fs.createReadStream(fileName), { duration: true }, function (err, result) {
+		var parser = mm(fs.createReadStream(fileName), {
+			duration: true
+		}, function (err, result) {
 			if (err) {
 				callback();
 			}
