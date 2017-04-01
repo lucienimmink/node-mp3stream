@@ -184,6 +184,7 @@ if (config.ask || !config.path) {
             next();
         }
     };
+    app.use(express.compress());
     app.use(allowCrossDomain);
     /*
     serve all files stored in the web folder as normal files; you can store the website that will use the streamer in this folder.
@@ -291,14 +292,14 @@ if (config.ask || !config.path) {
     logger.info("Starting node-mp3stream");
     if (config.useSSL) {
         var fs = require('fs');
-        var https = require('https');
+        var http2 = require('http2');
         var privateKey = fs.readFileSync(config.sslKey, 'utf8');
         var certificate = fs.readFileSync(config.sslCert, 'utf8');
         var credentials = {
             key: privateKey,
             cert: certificate
         };
-        var httpsServer = https.createServer(credentials, app);
+        var httpsServer = http2.createServer(credentials, app);
         httpsServer.listen(config.port);
     } else {
         app.listen(config.port);

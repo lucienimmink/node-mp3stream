@@ -11,6 +11,7 @@
     "duration-format": "^0.0.2",
     "express": "^3.21.2",
     "forever": "^0.15.3",
+    "http2": "^3.3.6",
     "jsmusicdbnext-prebuilt": "git+https://git@github.com/lucienimmink/JSMusicDBNext-prebuilt.git",
     "jwt-simple": "^0.5.1",
     "lodash": "^4.17.4",
