@@ -25,6 +25,9 @@ var jwt = require('jwt-simple');
 var url = require('url');
 var request = require('request');
 
+var http2 = require('http2');
+var expressHTTP2Workaround = require('express-http2-workaround');
+
 var start = new Date();
 var knownJWTTokens = {};
 
@@ -185,6 +188,7 @@ if (config.ask || !config.path) {
         }
     };
     app.use(express.compress());
+    app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
     app.use(allowCrossDomain);
     /*
     serve all files stored in the web folder as normal files; you can store the website that will use the streamer in this folder.
