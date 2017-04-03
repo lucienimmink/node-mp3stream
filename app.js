@@ -187,8 +187,8 @@ if (config.ask || !config.path) {
             next();
         }
     };
-    app.use(express.compress());
     app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
+    app.use(express.compress());
     app.use(allowCrossDomain);
     /*
     serve all files stored in the web folder as normal files; you can store the website that will use the streamer in this folder.
@@ -196,6 +196,22 @@ if (config.ask || !config.path) {
     */
     app.use(app.router);
     app.use(express.static('public'));
+
+    logger.info("Starting node-mp3stream");
+    if (config.useSSL) {
+        var fs = require('fs');
+        var http2 = require('http2');
+        var privateKey = fs.readFileSync(config.sslKey, 'utf8');
+        var certificate = fs.readFileSync(config.sslCert, 'utf8');
+        var credentials = {
+            key: privateKey,
+            cert: certificate
+        };
+        var httpsServer = http2.createServer(credentials, app);
+        httpsServer.listen(config.port);
+    } else {
+        app.listen(config.port);
+    }
 
     /**
      * Streams a given mp3; use the JWT token to validate the user.
@@ -293,21 +309,6 @@ if (config.ask || !config.path) {
             });
         });
     });
-    logger.info("Starting node-mp3stream");
-    if (config.useSSL) {
-        var fs = require('fs');
-        var http2 = require('http2');
-        var privateKey = fs.readFileSync(config.sslKey, 'utf8');
-        var certificate = fs.readFileSync(config.sslCert, 'utf8');
-        var credentials = {
-            key: privateKey,
-            cert: certificate
-        };
-        var httpsServer = http2.createServer(credentials, app);
-        httpsServer.listen(config.port);
-    } else {
-        app.listen(config.port);
-    }
 
     // initiate a rescan of the collection (based on JavaScript, but we could also spawn a seperate process if set in config)
     app.get('/rescan', function(req, res) {
