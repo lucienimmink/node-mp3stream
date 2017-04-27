@@ -200,7 +200,6 @@ if (config.ask || !config.path) {
     logger.info("Starting node-mp3stream");
     if (config.useSSL) {
         var fs = require('fs');
-        var http2 = require('http2');
         var privateKey = fs.readFileSync(config.sslKey, 'utf8');
         var certificate = fs.readFileSync(config.sslCert, 'utf8');
         var credentials = {
@@ -248,7 +247,7 @@ if (config.ask || !config.path) {
                                 header["Content-Range"] = "bytes " + start + "-" + end + "/" + (total);
                                 header["Accept-Ranges"] = "bytes";
                                 header["Content-Length"] = (end - start) + 1;
-                                header["Connection"] = "close";
+                                //header["Connection"] = "close"; // connection is deprecated in h2
                                 header["Content-Type"] = mime;
 
                                 res.writeHead(206, header);
@@ -368,6 +367,8 @@ if (config.ask || !config.path) {
                 url: queryData.url
             }).on('error', function(e) {
                 res.end(e);
+            }).on('response', function(r) {
+                delete r.headers['connection'];
             }).pipe(res);
         } else {
             res.end("no url found");
