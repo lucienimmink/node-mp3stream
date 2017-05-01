@@ -4,7 +4,7 @@
     "version": "0.0.1",
     "private": true,
     "dependencies": {
-        "async": "^2.3.0",
+        "async": "^2.4.0",
         "command-asker": "^0.3.2",
         "dblite": "^0.7.8",
         "delete": "^0.3.2",
@@ -13,7 +13,7 @@
         "express-http2-workaround": "^1.1.2",
         "forever": "^0.15.3",
         "http2": "^3.3.6",
-        "jsmusicdbnext-prebuilt": "^1.1.2",
+        "jsmusicdbnext-prebuilt": "^1.2.0",
         "jwt-simple": "^0.5.1",
         "lodash": "^4.17.4",
         "log4js": "^1.1.1",

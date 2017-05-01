@@ -176,8 +176,11 @@ if (config.ask || !config.path) {
             res.setHeader("Cache-Control", "public, max-age=0"); // no cache
             res.setHeader("Expires", new Date(Date.now()).toUTCString());
         } else {
-            res.setHeader("Cache-Control", "public, max-age=4320000"); // 12 hours
-            res.setHeader("Expires", new Date(Date.now() + 4320000).toUTCString());
+            var expires = new Date(Date.now());
+            expires.setDate(expires.getDate() + 1);
+            expires.setFullYear(expires.getFullYear() + 1);
+            res.setHeader("Cache-Control", `public, max-age=${expires.getTime()}`); // A year and a day
+            res.setHeader("Expires", new Date(expires.getTime()).toUTCString());
         }
 
         // intercept OPTIONS method
