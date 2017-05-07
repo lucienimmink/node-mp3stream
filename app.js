@@ -235,29 +235,27 @@ if (config.ask || !config.path) {
                         }
                         if (!full) {
                             logger.debug("going to partial stream " + path);
-                            fs.readFile(path, 'binary', function(err, file) {
-                                var header = {};
-                                var range = req.headers.range;
-                                var parts = range.replace(/bytes=/, "").split("-");
-                                var partialstart = parts[0];
-                                var partialend = parts[1];
 
-                                var total = file.length;
+                            var stat = fs.statSync(path);
+                            var total = stat.size;
 
-                                var start = parseInt(partialstart, 10);
-                                var end = partialend ? parseInt(partialend, 10) : total - 1;
+                            var range = req.headers.range;
+                            var parts = range.replace(/bytes=/, "").split("-");
+                            var partialstart = parts[0];
+                            var partialend = parts[1];
 
-                                header["Content-Range"] = "bytes " + start + "-" + end + "/" + (total);
-                                header["Accept-Ranges"] = "bytes";
-                                header["Content-Length"] = (end - start) + 1;
-                                //header["Connection"] = "close"; // connection is deprecated in h2
-                                header["Content-Type"] = mime;
+                            var start = parseInt(partialstart, 10);
+                            var end = partialend ? parseInt(partialend, 10) : total - 1;
+                            var chunksize = (end - start) + 1;
 
-                                res.writeHead(206, header);
-                                res.write(file.slice(start, end) + '0', "binary");
-                                res.end();
-                                return;
+                            var file = fs.createReadStream(path, { start: start, end: end });
+                            res.writeHead(206, {
+                                'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+                                'Accept-Ranges': 'bytes',
+                                'Content-Length': chunksize,
+                                'Content-Type': mime
                             });
+                            file.pipe(res);
                         } else {
                             logger.debug("going to fully stream " + path);
                             var stat = fs.statSync(path);
@@ -293,7 +291,7 @@ if (config.ask || !config.path) {
     app.post('/login', function(req, res) {
         logger.info("Starting authentication");
         // decode the JWT token
-        var account, passwrd;
+        var account, passwd;
         if (req.headers["x-cred"]) {
             var decoded = parseToken(req.headers["x-cred"]);
             account = decoded.name;
@@ -345,7 +343,7 @@ if (config.ask || !config.path) {
                     res.writeHead(200);
                     res.write(JSON.stringify({
                         progress: progress,
-                        status: (progress == 100) ? 'ready' : 'scanning'
+                        status: (progress == '100') ? 'ready' : 'scanning'
                     }));
                 } else {
                     res.writeHead(200);
