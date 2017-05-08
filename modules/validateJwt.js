@@ -1,27 +1,27 @@
-const dblite = require('dblite'),
+var dblite = require('dblite'),
     log4js = require('log4js'),
     jwt = require('jwt-simple');
 
-let knownJWTTokens = {};
+var knownJWTTokens = {};
 
 log4js.loadAppender('file');
 log4js.addAppender(log4js.appenders.file('logs/mp3stream.log'), 'authentication');
 var logger = log4js.getLogger('authentication');
 logger.setLevel('INFO');
 
-const parseToken = function(token) {
+var parseToken = function(token) {
     if (!token) {
         return false;
     }
-    let decoded = jwt.decode(token, 'jsmusicdbnext')
+    var decoded = jwt.decode(token, 'jsmusicdbnext')
     if (typeof decoded === 'string') {
         decoded = JSON.parse(decoded);
     }
     return decoded;
 };
-const checkUser = function(account, passwd, cb, jwt) {
+var checkUser = function(account, passwd, cb, jwt) {
     if (account && passwd) {
-        const db = dblite('users.db');
+        var db = dblite('users.db');
         db.query('SELECT * FROM users WHERE username = :account AND password = :passwd', {
             account: account,
             passwd: passwd

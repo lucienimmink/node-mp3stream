@@ -1,4 +1,4 @@
-const express = require('express'),
+var express = require('express'),
     fs = require('fs'),
     compression = require('compression'),
     http2 = require('http2'),
@@ -34,7 +34,7 @@ app.use(cache);
 app.use(express.static('./public'));
 
 // check if config is set-up if not ask for input
-const addUserMode = process.argv[2] === "adduser";
+var addUserMode = process.argv[2] === "adduser";
 if (addUserMode) {
     askUser();
     return;
@@ -64,7 +64,7 @@ if (config.ask || !config.path) {
 
 // redirect everything to index if not in predefined list
 app.get(/^(?!\/rescan|\/listen|\/progress|\/data\/.*|\/dist.*|\/global.*|\/dist-systemjs.*|\/sw.js|\/manifest.json|\/js\/.*|\/app.*|\/css\/.*|\/fonts\/.*|\/fonts\/glyphs\/.*).*$/, function(req, res) {
-    res.sendfile('public/index.html');
+    res.sendFile('public/index.html', { root: __dirname });
 });
 
 // start-up express

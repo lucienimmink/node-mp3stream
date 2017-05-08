@@ -1,4 +1,4 @@
-const CommandAsker = require('command-asker'),
+var CommandAsker = require('command-asker'),
     fs = require('fs'),
     dblite = require('dblite'),
     config = require('./../config.json');

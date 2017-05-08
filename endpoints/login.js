@@ -1,4 +1,4 @@
-const validateJwt = require('./../modules/validateJwt'),
+var validateJwt = require('./../modules/validateJwt'),
     log4js = require('log4js'),
     jwt = require('jwt-simple');
 
