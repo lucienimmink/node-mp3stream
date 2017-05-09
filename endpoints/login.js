@@ -10,11 +10,10 @@ logger.setLevel('INFO');
 module.exports = function(req, res) {
     logger.info("Starting authentication");
     // decode the JWT token
-    var account, passwd;
     if (req.headers["x-cred"]) {
         var decoded = validateJwt(req.headers["x-cred"], function(valid) {
             res.jsonp({
-                success: val
+                success: valid
             });
         });
     } else {

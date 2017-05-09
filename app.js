@@ -57,7 +57,7 @@ if (config.ask || !config.path) {
     // set-up endpoints
     app.get('/data/image-proxy', imageProxy);
     app.get('/listen', listen);
-    app.get('/login', login);
+    app.post('/login', login);
     app.get('/rescan', rescan);
     app.get('/progress', progress);
 }
