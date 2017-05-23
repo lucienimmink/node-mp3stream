@@ -1,4 +1,5 @@
 var validateJwt = require('./../modules/validateJwt'),
+    config = require('./../config.json'),
     log4js = require('log4js');
 
 log4js.loadAppender('file');
