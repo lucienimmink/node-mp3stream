@@ -21,7 +21,7 @@ function initiateScan() {
             // spawn python process
             var outdir = config.musicdb;
             outdir = outdir.substring(0, outdir.indexOf('node-music.json'));
-            exec('python ./node_modules/scanner.py/scanner.py ' + dir + ' --destpath ' + outdir, function(error, stdout, stderr) {
+            exec('python ./node_modules/scanner.py/scanner.py ' + config.path + ' --destpath ' + outdir, function(error, stdout, stderr) {
                 logger.info(stdout);
             });
         } else {
