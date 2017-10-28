@@ -1,7 +1,7 @@
 // simple middleware that sets cache headers for the various resourcetypes
 
 module.exports = function(req, res, next) {
-    if (req.url.indexOf('node-music.json') !== -1) {
+    if (req.url.indexOf('node-music.json') !== -1 && req.url.indexOf('index.html') !== -1) {
         res.setHeader("Cache-Control", "public, max-age=0"); // no cache
         res.setHeader("Expires", new Date(Date.now()).toUTCString());
     } else {

@@ -1,6 +1,7 @@
 var express = require('express'),
     fs = require('fs'),
     compression = require('compression'),
+    shrinkRay = require('shrink-ray'),
     http2 = require('http2'),
     expressHTTP2Workaround = require('express-http2-workaround'),
     log4js = require('log4js'),
