@@ -1,7 +1,6 @@
 var express = require('express'),
     fs = require('fs'),
     compression = require('compression'),
-    shrinkRay = require('shrink-ray'),
     http2 = require('http2'),
     expressHTTP2Workaround = require('express-http2-workaround'),
     log4js = require('log4js'),
@@ -29,7 +28,7 @@ logger.setLevel('DEBUG');
 
 // set-up express
 app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
-app.use(shrinkRay());
+app.use(compression());
 app.use(cors);
 app.use(cache);
 app.use(express.static('./public'));
