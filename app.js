@@ -29,7 +29,7 @@ logger.setLevel('DEBUG');
 
 // set-up express
 app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
-app.use(compression());
+app.use(shrinkRay());
 app.use(cors);
 app.use(cache);
 app.use(express.static('./public'));
