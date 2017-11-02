@@ -1,5 +1,6 @@
 var express = require('express'),
     fs = require('fs'),
+    walk = require('fs-walk'),
     compression = require('compression'),
     http2 = require('http2'),
     expressHTTP2Workaround = require('express-http2-workaround'),
@@ -47,11 +48,12 @@ if (config.ask || !config.path) {
     // link website
     if (config.useJSMusicDB) {
         logger.info("Setting up website ...");
-        var filesAndFolders = ['css', 'fonts', 'global', 'js', 'index.html', 'manifest.json', 'sw.js'];
-        // remove current build if present; this ensures we have the most up2date prebuilt binaries on all platforms
-        _.forEach(filesAndFolders, function(value) {
-            del.sync('public/' + value);
-            symlinkOrCopySync('node_modules/jsmusicdbnext-prebuilt/' + value, 'public/' + value);
+        walk.files('node_modules/jsmusicdbnext-prebuilt/', (dir, file) => {
+            // link these files
+            del.sync('public/' + file);
+            symlinkOrCopySync('node_modules/jsmusicdbnext-prebuilt/' + file, 'public/' + file);
+            del.sync('public/global');
+            symlinkOrCopySync('node_modules/jsmusicdbnext-prebuilt/global', 'public/global');
         });
     }
     // set-up endpoints
