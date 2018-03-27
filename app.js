@@ -2,8 +2,8 @@ var express = require("express"),
   fs = require("fs"),
   walk = require("fs-walk"),
   compression = require("compression"),
-  https = require("https"),
-  //expressHTTP2Workaround = require('express-http2-workaround'),
+  http2 = require("http2e"),
+  expressHTTP2Workaround = require("express-http2-workaround"),
   log4js = require("log4js"),
   cors = require("./modules/cors"),
   cache = require("./modules/cache"),
@@ -28,7 +28,7 @@ var logger = log4js.getLogger("mp3stream");
 logger.setLevel("DEBUG");
 
 // set-up express
-// app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
+app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
 app.use(compression());
 app.use(cors);
 app.use(cache);
@@ -89,7 +89,7 @@ if (config.useSSL) {
   var httpsServer = https.createServer(credentials, app);
   httpsServer.listen(config.port);
   logger.info(
-    `node mp3stream ${package.version} is set-up and running in https mode`
+    `node mp3stream ${package.version} is set-up and running in http/2 mode`
   );
 } else {
   app.listen(config.port);
