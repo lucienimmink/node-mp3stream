@@ -3,10 +3,11 @@ var request = require("request"),
   fs = require("fs"),
   url = require("url");
 
-log4js.loadAppender("file");
-log4js.addAppender(log4js.appenders.file("logs/mp3stream.log"), "image-proxy");
-var logger = log4js.getLogger("image-proxy");
-logger.setLevel("INFO");
+log4js.configure({
+  appenders: { imageProxy: { type: "file", filename: "logs/mp3stream.log" } },
+  categories: { default: { appenders: ["imageProxy"], level: "info" } }
+});
+const logger = log4js.getLogger("imageProxy");
 
 var serveFile = function(path, res) {
   fs.readFile(path, function(err, buffer) {

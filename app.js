@@ -22,10 +22,11 @@ var express = require("express"),
   app = express();
 
 // set-up main logger
-log4js.loadAppender("file");
-log4js.addAppender(log4js.appenders.file("logs/mp3stream.log"), "mp3stream");
-var logger = log4js.getLogger("mp3stream");
-logger.setLevel("DEBUG");
+log4js.configure({
+  appenders: { app: { type: "file", filename: "logs/mp3stream.log" } },
+  categories: { default: { appenders: ["app"], level: "info" } }
+});
+const logger = log4js.getLogger("app");
 
 // set-up express
 app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
