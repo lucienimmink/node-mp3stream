@@ -87,7 +87,7 @@ if (config.useSSL) {
     key: privateKey,
     cert: certificate
   };
-  var httpsServer = https.createServer(credentials, app);
+  var httpsServer = http2.createServer(credentials, app);
   httpsServer.listen(config.port);
   logger.info(
     `node mp3stream ${package.version} is set-up and running in http/2 mode`
