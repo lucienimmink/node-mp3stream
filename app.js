@@ -35,6 +35,8 @@ app.use(cors);
 app.use(cache);
 app.use(express.static("./public"));
 
+app.disable("x-powered-by");
+
 // check if config is set-up if not ask for input
 var addUserMode = process.argv[2] === "adduser";
 if (addUserMode) {
