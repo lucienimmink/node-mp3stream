@@ -1,5 +1,3 @@
-var config = require("./../config.json");
-
 // simple middleware that sets cache headers for the various resourcetypes
 module.exports = function(req, res, next) {
   if (
@@ -19,16 +17,5 @@ module.exports = function(req, res, next) {
     ); // A year and a day
     res.setHeader("Expires", new Date(expires.getTime()).toUTCString());
   }
-  // some extra headers to improve security
-
-  // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
-  if (config.useSSL) {
-    res.setHeader(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains"
-    );
-  }
-  // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
-  res.setHeader("X-Content-Type-Options", "nosniff");
   next();
 };

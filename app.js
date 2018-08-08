@@ -7,6 +7,7 @@ var express = require("express"),
   log4js = require("log4js"),
   cors = require("./modules/cors"),
   cache = require("./modules/cache"),
+  security = require("./modules/security"),
   imageProxy = require("./endpoints/imageProxy"),
   rescan = require("./endpoints/rescan"),
   progress = require("./endpoints/progress"),
@@ -32,6 +33,7 @@ const logger = log4js.getLogger("app");
 app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
 app.use(compression());
 app.use(cors);
+app.use(security);
 app.use(cache);
 app.use(express.static("./public"));
 
