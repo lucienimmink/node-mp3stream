@@ -75,14 +75,6 @@ if (config.ask || !config.path) {
   app.get("/progress", progress);
 }
 
-// redirect everything to index if not in predefined list
-app.get(
-  /^(?!\/rescan|\/listen|\/progress|\/data\/.*|\/dist.*|\/global.*|\/dist-systemjs.*|\/sw.js|\/manifest.json|\/js\/.*|\/app.*|\/css\/.*|\/fonts\/.*|\/fonts\/glyphs\/.*).*$/,
-  function(req, res) {
-    res.sendFile("public/index.html", { root: __dirname });
-  }
-);
-
 // start-up express
 if (config.useSSL) {
   var privateKey = fs.readFileSync(config.sslKey, "utf8");
