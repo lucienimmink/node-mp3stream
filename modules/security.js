@@ -15,6 +15,9 @@ module.exports = function(req, res, next) {
       res.setHeader("X-Content-Type-Options", "nosniff");
     }
   });
+  if (req.url.indexOf('.js') !== -1) {
+    res.setHeader("Content-Type", "text/javascript");
+  }
   // always return
   next();
 };
