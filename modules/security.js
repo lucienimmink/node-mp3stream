@@ -1,9 +1,8 @@
-var config = require("./../config.json");
 var extensions = [".css", ".png", ".gif", ".jpg", ".ico", ".js"];
 // some extra headers to improve security
 module.exports = function(req, res, next) {
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
-  if (config.useSSL) {
+  if (process.env.USESSL === "true") {
     res.setHeader(
       "Strict-Transport-Security",
       "max-age=31536000; includeSubDomains"

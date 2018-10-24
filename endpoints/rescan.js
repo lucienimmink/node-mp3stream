@@ -1,5 +1,4 @@
 var validateJwt = require("./../modules/validateJwt"),
-  config = require("./../config.json"),
   log4js = require("log4js");
 
 log4js.configure({
@@ -19,11 +18,11 @@ function initiateScan() {
     }
     if (hasPython) {
       // spawn python process
-      var outdir = config.musicdb;
+      var outdir = process.env.MUSICDB;
       outdir = outdir.substring(0, outdir.indexOf("node-music.json"));
       exec(
         "python ./node_modules/scanner.py/scanner.py " +
-          config.path +
+          process.env.PATH +
           " --destpath " +
           outdir,
         function(error, stdout, stderr) {

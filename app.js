@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 var express = require("express"),
   fs = require("fs"),
   walk = require("fs-walk"),
@@ -43,53 +45,51 @@ app.disable("x-powered-by");
 var addUserMode = process.argv[2] === "adduser";
 if (addUserMode) {
   askUser();
-  return;
 }
-if (config.ask || !config.path) {
-  // ask user to set-up configuration
+// check if we have a .env file; if not create it
+if (!fs.existsSync("./.env")) {
+  logger.info("no .env file found; ask for the questions");
   ask();
-  return;
-} else {
-  // link website
-  if (config.useJSMusicDB) {
-    logger.info("Setting up website ...");
-    walk.files("node_modules/jsmusicdbnext-prebuilt/", (dir, file) => {
-      // link these files
-      del.sync("public/" + file);
-      symlinkOrCopySync(
-        "node_modules/jsmusicdbnext-prebuilt/" + file,
-        "public/" + file
-      );
-      del.sync("public/global");
-      symlinkOrCopySync(
-        "node_modules/jsmusicdbnext-prebuilt/global",
-        "public/global"
-      );
-    });
-  }
-  // set-up endpoints
-  app.get("/data/image-proxy", imageProxy);
-  app.get("/listen", listen);
-  app.post("/login", login);
-  app.get("/rescan", rescan);
-  app.get("/progress", progress);
 }
+// now we have the process.env variables we need!
+if (process.env.USEJSMUSICDB) {
+  logger.info("Setting up website ...");
+  walk.files("node_modules/jsmusicdbnext-prebuilt/", (dir, file) => {
+    // link these files
+    del.sync("public/" + file);
+    symlinkOrCopySync(
+      "node_modules/jsmusicdbnext-prebuilt/" + file,
+      "public/" + file
+    );
+    del.sync("public/global");
+    symlinkOrCopySync(
+      "node_modules/jsmusicdbnext-prebuilt/global",
+      "public/global"
+    );
+  });
+}
+// set-up endpoints
+app.get("/data/image-proxy", imageProxy);
+app.get("/listen", listen);
+app.post("/login", login);
+app.get("/rescan", rescan);
+app.get("/progress", progress);
 
 // start-up express
-if (config.useSSL) {
-  var privateKey = fs.readFileSync(config.sslKey, "utf8");
-  var certificate = fs.readFileSync(config.sslCert, "utf8");
+if (process.env.USESSL === "true") {
+  var privateKey = fs.readFileSync(process.env.SSLKEY, "utf8");
+  var certificate = fs.readFileSync(process.env.SSLCERT, "utf8");
   var credentials = {
     key: privateKey,
     cert: certificate
   };
   var httpsServer = http2.createServer(credentials, app);
-  httpsServer.listen(config.port);
+  httpsServer.listen(process.env.PORT);
   logger.info(
     `node mp3stream ${package.version} is set-up and running in http/2 mode`
   );
 } else {
-  app.listen(config.port);
+  app.listen(process.env.PORT);
   logger.info(
     `node mp3stream ${package.version} is set-up and running in http mode`
   );

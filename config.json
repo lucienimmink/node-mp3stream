@@ -1,10 +1,9 @@
 {
-    "port": "16882",
-    "ask": true,
-    "path": "",
-    "musicdb": "./public/data/node-music.json",
-    "useJSMusicDB": true,
-    "useSSL": false,
-    "sslCert": "/usr/syno/etc/certificate/system/default/fullchain.pem",
-    "sslKey": "/usr/syno/etc/certificate/system/default/privkey.pem"
+  "port": "16882",
+  "path": "",
+  "musicdb": "./public/data/node-music.json",
+  "useJSMusicDB": true,
+  "useSSL": false,
+  "sslCert": "/usr/syno/etc/certificate/system/default/fullchain.pem",
+  "sslKey": "/usr/syno/etc/certificate/system/default/privkey.pem"
 }

@@ -20,3 +20,4 @@ json-netwerk
 users.db
 public/*
 .vscode
+.env

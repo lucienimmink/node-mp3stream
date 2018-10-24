@@ -1,5 +1,4 @@
 var validateJwt = require("./../modules/validateJwt"),
-  config = require("../config.json"),
   fs = require("fs"),
   log4js = require("log4js");
 
@@ -10,13 +9,13 @@ log4js.configure({
 const logger = log4js.getLogger("listen");
 
 module.exports = function(req, res) {
-  if (!config.path) {
+  if (!process.env.PATH || process.env.PATH === "") {
     logger.fatal("Configuration is not complete");
     res.statusCode = 500;
     res.end();
     return false;
   }
-  var path = config.path + req.query.path,
+  var path = process.env.PATH + req.query.path,
     full = req.query.full,
     jwt = req.query.jwt;
 
