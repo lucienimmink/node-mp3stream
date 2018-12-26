@@ -23,7 +23,7 @@ module.exports = function() {
       ask: "Do you want to use SSL? (yes/no)"
     },
     {
-      key: "path",
+      key: "musicpath",
       ask: "Where are the music files stored? "
     },
     {
@@ -41,7 +41,7 @@ module.exports = function() {
   a.ask(function(response) {
     // set the new config file
     config.port = response.port;
-    config.path = response.path;
+    config.musicpath = response.musicpath;
     config.useSSL =
       response.ssl.toLowerCase() === "yes" ||
       response.ssl.toLowerCase() === "true" ||

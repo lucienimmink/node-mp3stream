@@ -1,6 +1,6 @@
 {
   "port": "16882",
-  "path": "",
+  "musicpath": "",
   "musicdb": "./public/data/node-music.json",
   "useJSMusicDB": true,
   "useSSL": false,

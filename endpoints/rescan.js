@@ -22,7 +22,7 @@ function initiateScan() {
       outdir = outdir.substring(0, outdir.indexOf("node-music.json"));
       exec(
         "python ./node_modules/scanner.py/scanner.py " +
-          process.env.PATH +
+          process.env.MUSICPATH +
           " --destpath " +
           outdir,
         function(error, stdout, stderr) {

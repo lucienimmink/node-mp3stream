@@ -9,16 +9,15 @@ log4js.configure({
 const logger = log4js.getLogger("listen");
 
 module.exports = function(req, res) {
-  if (!process.env.PATH || process.env.PATH === "") {
+  if (!process.env.MUSICPATH || process.env.MUSICPATH === "") {
     logger.fatal("Configuration is not complete");
     res.statusCode = 500;
     res.end();
     return false;
   }
-  var path = process.env.PATH + req.query.path,
+  var path = process.env.MUSICPATH + req.query.path,
     full = req.query.full,
     jwt = req.query.jwt;
-
   validateJwt(jwt, function(val) {
     if (val) {
       fs.exists(path, function(exists) {
