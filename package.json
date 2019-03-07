@@ -7,7 +7,7 @@
     "async": "^2.6.1",
     "command-asker": "^0.3.2",
     "compression": "^1.7.3",
-    "dblite": "^0.7.9",
+    "dblite": "^1.0.1",
     "delete": "^0.3.2",
     "dotenv": "^6.2.0",
     "duration-format": "^0.0.2",
