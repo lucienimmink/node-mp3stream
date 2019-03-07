@@ -4,7 +4,7 @@
   "version": "3.0.0",
   "private": true,
   "dependencies": {
-    "async": "^2.6.1",
+    "async": "^2.6.2",
     "command-asker": "^0.3.2",
     "compression": "^1.7.3",
     "dblite": "^0.7.9",
