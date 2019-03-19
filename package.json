@@ -6,7 +6,7 @@
   "dependencies": {
     "async": "^2.6.2",
     "command-asker": "^0.3.2",
-    "compression": "^1.7.3",
+    "compression": "^1.7.4",
     "dblite": "^1.0.1",
     "delete": "^1.1.0",
     "dotenv": "^7.0.0",
