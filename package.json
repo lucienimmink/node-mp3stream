@@ -9,7 +9,7 @@
     "compression": "^1.7.3",
     "dblite": "^1.0.1",
     "delete": "^1.1.0",
-    "dotenv": "^7.0.0",
+    "dotenv": "^8.0.0",
     "duration-format": "^0.0.2",
     "express": "^4.16.4",
     "express-http2-workaround": "^1.1.3",
