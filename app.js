@@ -10,11 +10,14 @@ var express = require("express"),
   cors = require("./modules/cors"),
   cache = require("./modules/cache"),
   security = require("./modules/security"),
+  crypto = require("./modules/crypto"),
   imageProxy = require("./endpoints/imageProxy"),
   rescan = require("./endpoints/rescan"),
   progress = require("./endpoints/progress"),
   login = require("./endpoints/login"),
   listen = require("./endpoints/listen"),
+  version = require("./endpoints/version"),
+  publicKey = require("./endpoints/public-key"),
   config = require("./config.json"),
   ask = require("./modules/ask"),
   askUser = require("./modules/askUser"),
@@ -30,6 +33,10 @@ log4js.configure({
   categories: { default: { appenders: ["app"], level: "info" } }
 });
 const logger = log4js.getLogger("app");
+
+if (!crypto.doKeysExist()) {
+  crypto.generateKeys();
+}
 
 // set-up express
 app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
@@ -74,6 +81,8 @@ app.get("/listen", listen);
 app.post("/login", login);
 app.get("/rescan", rescan);
 app.get("/progress", progress);
+app.get("/version", version);
+app.get("/public-key", publicKey);
 
 // start-up express
 if (process.env.USESSL === "true") {

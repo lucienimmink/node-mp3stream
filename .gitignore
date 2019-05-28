@@ -21,3 +21,6 @@ users.db
 public/*
 .vscode
 .env
+
+.private-key.pem
+.public-key.json

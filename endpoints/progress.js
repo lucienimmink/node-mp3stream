@@ -16,6 +16,7 @@ module.exports = function(req, res) {
     if (val) {
       // progress should be written to the output folder as a file progress.txt containing the actual percentage
       var hasProgressFile = fs.existsSync(progressFile);
+      res.setHeader("Content-Type", "application/json");
       if (hasProgressFile) {
         var progress = fs.readFileSync(progressFile, "utf8");
         res.statusCode = 200;
