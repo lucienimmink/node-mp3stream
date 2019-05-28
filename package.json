@@ -21,12 +21,15 @@
     "jsmusicdbnext-prebuilt": "^2.15.6",
     "jwt-simple": "^0.5.6",
     "log4js": "^4.3.0",
-    "node": "^12.3.1",
     "request": "^2.88.0",
     "scanner.py": "git+https://github.com/lucienimmink/scanner.py.git",
     "symlink-or-copy": "^1.2.0"
   },
   "scripts": {
     "start": "node app.js"
+  },
+  "engines": {
+    "node": ">=8",
+    "npm": ">= 6"
   }
 }
