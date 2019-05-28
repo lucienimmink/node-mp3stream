@@ -1,5 +1,3 @@
-const pem2jwk = require("pem-jwk").pem2jwk;
-const generatePassword = require("password-generator");
 const fs = require("fs");
 const log4js = require("log4js");
 const { Crypto } = require("@peculiar/webcrypto");
