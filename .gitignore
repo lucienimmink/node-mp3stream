@@ -22,5 +22,5 @@ public/*
 .vscode
 .env
 
-.private-key.pem
+.private-key.json
 .public-key.json

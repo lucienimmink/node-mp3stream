@@ -4,7 +4,10 @@
   "version": "4.0.0",
   "private": true,
   "dependencies": {
+    "@peculiar/webcrypto": "^1.0.12",
     "async": "^3.0.1",
+    "atob": "^2.1.2",
+    "body-parser": "^1.19.0",
     "command-asker": "^0.3.2",
     "compression": "^1.7.4",
     "dblite": "^1.0.1",

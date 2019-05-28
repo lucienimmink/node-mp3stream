@@ -7,6 +7,7 @@ var express = require("express"),
   http2 = require("http2e"),
   expressHTTP2Workaround = require("express-http2-workaround"),
   log4js = require("log4js"),
+  bodyParser = require("body-parser"),
   cors = require("./modules/cors"),
   cache = require("./modules/cache"),
   security = require("./modules/security"),
@@ -18,6 +19,7 @@ var express = require("express"),
   listen = require("./endpoints/listen"),
   version = require("./endpoints/version"),
   publicKey = require("./endpoints/public-key"),
+  authenticate = require("./endpoints/authenticate"),
   config = require("./config.json"),
   ask = require("./modules/ask"),
   askUser = require("./modules/askUser"),
@@ -45,6 +47,8 @@ app.use(cors);
 app.use(security);
 app.use(cache);
 app.use(express.static("./public"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.disable("x-powered-by");
 
@@ -83,6 +87,7 @@ app.get("/rescan", rescan);
 app.get("/progress", progress);
 app.get("/version", version);
 app.get("/public-key", publicKey);
+app.post("/authenticate", authenticate);
 
 // start-up express
 if (process.env.USESSL === "true") {
