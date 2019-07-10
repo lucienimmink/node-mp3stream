@@ -18,7 +18,7 @@
     "http2e": "git+https://github.com/lucienimmink/node-http2.git",
     "jsmusicdbnext-prebuilt": "^2.11.2",
     "jwt-simple": "^0.5.5",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "log4js": "^4.0.2",
     "request": "^2.88.0",
     "scanner.py": "git+https://github.com/lucienimmink/scanner.py.git",
