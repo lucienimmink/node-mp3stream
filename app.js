@@ -23,6 +23,7 @@ var express = require("express"),
   symlinkOrCopySync = require("symlink-or-copy").sync,
   package = require("./package.json"),
   app = express();
+  socket = require('./endpoints/socket')
 
 // set-up main logger
 log4js.configure({
@@ -76,6 +77,7 @@ app.get("/rescan", rescan);
 app.get("/progress", progress);
 
 // start-up express
+let io;
 if (process.env.USESSL === "true") {
   var privateKey = fs.readFileSync(process.env.SSLKEY, "utf8");
   var certificate = fs.readFileSync(process.env.SSLCERT, "utf8");
@@ -88,9 +90,12 @@ if (process.env.USESSL === "true") {
   logger.info(
     `node mp3stream ${package.version} is set-up and running in http/2 mode`
   );
+  io = require('socket.io')(httpsServer)
 } else {
-  app.listen(process.env.PORT);
+  const server = app.listen(process.env.PORT);
+  io = require('socket.io')(server)
   logger.info(
     `node mp3stream ${package.version} is set-up and running in http mode`
   );
 }
+socket(io)
