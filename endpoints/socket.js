@@ -41,7 +41,7 @@ module.exports = function (io) {
                 sendMessage(socket, {
                     key: 'progress',
                     value: {
-                        progress: progress,
+                        progress: parseInt(progress),
                         status: (progress === '100') ? 'ready' : 'scanning'
                     }
                 })
