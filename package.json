@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "async": "^2.6.2",
-    "chokidar": "^3.3.1",
+    "chokidar": "^3.4.0",
     "command-asker": "^0.3.2",
     "compression": "^1.7.3",
     "dblite": "^1.1.3",
