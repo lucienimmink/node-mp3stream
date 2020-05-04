@@ -24,6 +24,7 @@
     "log4js": "^4.3.0",
     "request": "^2.88.0",
     "scanner.py": "git+https://github.com/lucienimmink/scanner.py.git",
+    "socket.io": "^2.3.0",
     "symlink-or-copy": "^1.2.0"
   },
   "scripts": {
