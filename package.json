@@ -15,7 +15,7 @@
     "express": "^4.17.1",
     "express-http2-workaround": "^1.1.3",
     "fs-walk": "0.0.2",
-    "http-proxy-middleware": "^0.19.1",
+    "http-proxy-middleware": "^1.0.3",
     "http2e": "git+https://github.com/lucienimmink/node-http2.git",
     "jsmusicdbnext-prebuilt": "^2.27.4",
     "jwt-simple": "^0.5.6",
