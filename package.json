@@ -19,7 +19,7 @@
     "fs-walk": "^0.0.2",
     "http-proxy-middleware": "^0.19.2",
     "http2e": "git+https://github.com/lucienimmink/node-http2.git",
-    "jsmusicdbnext-prebuilt": "^2.15.6",
+    "jsmusicdbnext-prebuilt": "^2.28.5",
     "jwt-simple": "^0.5.6",
     "log4js": "^4.3.0",
     "request": "^2.88.0",
