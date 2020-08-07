@@ -7,7 +7,7 @@
     "@peculiar/webcrypto": "^1.1.1",
     "async": "^3.2.0",
     "body-parser": "^1.19.0",
-    "chokidar": "^3.4.0",
+    "chokidar": "^3.4.2",
     "command-asker": "^0.3.2",
     "compression": "^1.7.4",
     "dblite": "^1.1.3",
