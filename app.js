@@ -64,7 +64,8 @@ if (!fs.existsSync("./.env")) {
 }
 // now we have the process.env variables we need!
 if (process.env.USEJSMUSICDB) {
-  logger.info("Setting up website ...");
+  logger.info("Visit https://www.jsmusicdb.com and use this server as back-end");
+  /*
   walk.files("node_modules/jsmusicdbnext-prebuilt/", (dir, file) => {
     // link these files
     del.sync("public/" + file);
@@ -78,6 +79,7 @@ if (process.env.USEJSMUSICDB) {
       "public/global"
     );
   });
+  */
 }
 // set-up endpoints
 app.get("/data/image-proxy", imageProxy);
