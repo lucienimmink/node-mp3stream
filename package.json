@@ -8,7 +8,7 @@
     "async": "^3.2.0",
     "body-parser": "^1.19.0",
     "chokidar": "^3.4.3",
-    "command-asker": "^0.2.0",
+    "command-asker": "^0.3.2",
     "compression": "^1.7.4",
     "dblite": "^1.1.4",
     "delete": "^1.1.0",
@@ -27,7 +27,10 @@
     "symlink-or-copy": "^1.3.1"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "docker:build": "docker build -t jsmusicdb/node-mp3stream:latest .",
+    "docker:run": "npm run --silent docker:build && docker run --rm -d -p 3000:80/tcp jsmusicdb/node-mp3stream:latest",
+    "docker:push": "docker push jsmusicdb/node-mp3stream:latest"
   },
   "engines": {
     "node": ">= 10.12.0",
