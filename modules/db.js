@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs")
 const dblite = require("dblite");
 const log4js = require("log4js");
+const fs = require("fs");
 
 log4js.configure({
   appenders: { db: { type: "file", filename: "logs/mp3stream.log" } },
@@ -10,7 +11,7 @@ const logger = log4js.getLogger("db");
 
 var checkUser = function(account, passwd, cb, jwt, knownJWTTokens) {
   if (account && passwd) {
-    var db = dblite("users.db");
+    var db = dblite("./users.db");
     db.query(
       "SELECT * FROM users WHERE username = :account",
       {
