@@ -1,6 +1,18 @@
-FROM nginx:1.19.6-alpine
+FROM node:15.5.0-alpine3.10
 
-COPY ./dist /etc/nginx/html
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+RUN apk update \
+    && apk add sqlite \
+    && apk add socat
 
-EXPOSE 80
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . ./
+COPY .env.docker ./.env
+
+EXPOSE 16882
+
+CMD ["node", "app.js"]
