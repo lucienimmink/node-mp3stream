@@ -2,7 +2,7 @@
   "port": "16882",
   "musicpath": "",
   "musicdb": "./public/data/node-music.json",
-  "useJSMusicDB": true,
+  "useJSMusicDB": false,
   "useSSL": false,
   "sslCert": "/usr/syno/etc/certificate/system/default/fullchain.pem",
   "sslKey": "/usr/syno/etc/certificate/system/default/privkey.pem"

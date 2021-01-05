@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs")
 const dblite = require("dblite");
 const log4js = require("log4js");
 
@@ -11,10 +12,9 @@ var checkUser = function(account, passwd, cb, jwt, knownJWTTokens) {
   if (account && passwd) {
     var db = dblite("users.db");
     db.query(
-      "SELECT * FROM users WHERE username = :account AND password = :passwd",
+      "SELECT * FROM users WHERE username = :account",
       {
-        account: account,
-        passwd: passwd
+        account: account
       },
       {
         username: String,
@@ -22,15 +22,17 @@ var checkUser = function(account, passwd, cb, jwt, knownJWTTokens) {
       },
       function(rows) {
         var user = rows.length && rows[0];
-        if (user.passwd === passwd) {
-          logger.info("User " + account + " authenticated");
-          if (jwt) knownJWTTokens[jwt] = true;
-          if (cb) cb(true);
-        } else {
-          logger.error("User " + account + " NOT authenticated");
-          if (jwt) knownJWTTokens[jwt] = false;
-          if (cb) cb(false);
-        }
+        compare(passwd, user.passwd, (compares) => {
+          if (compares) {
+            logger.info("User " + account + " authenticated");
+            if (jwt) knownJWTTokens[jwt] = true;
+            if (cb) cb(true);
+          } else {
+            logger.error("User " + account + " NOT authenticated");
+            if (jwt) knownJWTTokens[jwt] = false;
+            if (cb) cb(false);
+          }
+        })
       }
     );
   } else {
@@ -39,5 +41,17 @@ var checkUser = function(account, passwd, cb, jwt, knownJWTTokens) {
     if (cb) cb(false);
   }
 };
+
+const compare = (password, hash, cb) => {
+  bcrypt.compare(password, hash, function(err, isMatch) {
+    if (err) {
+      throw err
+    } else if (!isMatch) {
+      cb(false)
+    } else {
+      cb(true)
+    }
+  })
+}
 
 module.exports = checkUser;
