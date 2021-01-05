@@ -30,7 +30,7 @@
   "scripts": {
     "start": "node app.js",
     "docker:build": "docker build -t jsmusicdb/node-mp3stream:latest .",
-    "docker:setup": "npm run --silent docker:build && docker run -i --rm  -p 16882:16882/tcp jsmusicdb/node-mp3stream:latest",
+    "docker:setup": "npm run --silent docker:build && docker run --name node-mp3stream -it --rm -p 16882:16882/tcp -v ${1}:/mnt/music jsmusicdb/node-mp3stream:latest",
     "docker:run": "docker run -d --rm -p 16882:16882/tcp jsmusicdb/node-mp3stream:latest",
     "docker:push": "docker push jsmusicdb/node-mp3stream:latest"
   },

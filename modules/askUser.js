@@ -16,16 +16,21 @@ module.exports = async function (exit = false, cb) {
   hash(password, (hash) => {
     const db = dblite("./users.db");
     db.query(
-      "INSERT OR REPLACE INTO users VALUES(?, ?)",
-      [username, hash],
-      function (err, res) {
-        if (err)
-          throw err;
-        console.log("Config and user database has been set-up.");
-        db.close();
-        if (exit) process.exit(0);
-        cb();
-      }
+      "CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)",
+      function(err, res) {
+        db.query(
+          "INSERT OR REPLACE INTO users VALUES(?, ?)",
+          [username, hash],
+          function (err, res) {
+            if (err)
+              throw err;
+            console.log("Config and user database has been set-up.");
+            db.close();
+            if (exit) process.exit(0);
+            cb();
+          }
+        );
+        }
     );
   });
 };
