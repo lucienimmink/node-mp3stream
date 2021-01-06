@@ -1,6 +1,7 @@
 # Node MP3-Stream
 
 A simple mp3 streamer / webserver written in JavaScript. All you need to run is [Node.js](https://nodejs.org/en/).
+To actually play music please browse to [jsmusicdb](https://www.jsmusicdb.com) and provide credentials as you setup using the instructions below.
 
 ## Install
 
