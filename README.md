@@ -22,18 +22,35 @@ then
 - username : specify a username that is able to use the program
 - password : specify the password for the username
 
-if <mp3streamurl:port>/data/node-music.json is not found or is empty a scan is triggered after running the app.
-You can override the path to the musicdb file by setting the relative path in config.json
-
-## Add an extra user
-
-`node app adduser`
-
-## Add a website
-
-You are encouraged to use [JSMusicDB](https://www.jsmusicdb.com) as front-end for node-mp3stream. You can place your own player (or copy of [JSMusicDB](https://github.com/lucienimmink/JSMusicDB)) in `/public` if you want to.
-
 ## About SSL
 
 In `config.json` you can point to the certificate and the key used for SSL. Please update the paths manually. Most likely these files can only be read by the root user, if so restart the app as root.
 You have to make sure that the the cert and key are up to date and valid.
+
+## Docker
+
+Included is a dockerfile to create and run a containerized version of node-mp3stream.
+
+Build the container by issuing the command
+`npm run docker:build`
+
+And setup your first user
+`npm run docker:setup`
+Note that the server is now available.
+
+To run it deamonized
+`npm run docker: run`
+Please refer to the `package.json` to alter settings like the port and music volume.
+
+### music volume
+
+Create a named volume that you mount, for example:
+
+```yaml
+docker volume create
+--driver local
+--opt type=cifs
+--opt device=//<network-device-ip-folder>
+--opt o=user=<your-user>,password=<your-pw>
+<volume-name>
+```
