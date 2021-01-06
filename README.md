@@ -48,10 +48,21 @@ Please refer to the `package.json` to alter settings like the port and music vol
 Create a named volume that you mount, for example:
 
 ```yaml
-docker volume create
---driver local
---opt type=cifs
---opt device=//<network-device-ip-folder>
---opt o=user=<your-user>,password=<your-pw>
+docker volume create \
+--driver local \
+--opt type=cifs \
+--opt device=//<network-device-ip-folder> \
+--opt o=user=<your-user>,password=<your-pw> \
+<volume-name>
+```
+
+where `<volume-name>` should be `music-share`, if you mount a local folder it's looks like this:
+
+```yaml
+docker volume create \
+--driver local \ 
+--opt type=none \
+--opt device=//c/Users/<user name>/... \
+--opt o=bind \
 <volume-name>
 ```
