@@ -103,6 +103,7 @@ if (addUserMode) {
     );
   }
   if (!fs.existsSync("./users.db")) {
+    console.log('focus on the terminal :)');
     askUser(false, () => {
       logger.info('user db has been created; now start-up');
       startup();
