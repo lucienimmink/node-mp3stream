@@ -27,10 +27,12 @@ var checkUser = function(account, passwd, cb, jwt, knownJWTTokens) {
           if (compares) {
             logger.info("User " + account + " authenticated");
             if (jwt) knownJWTTokens[jwt] = true;
+            db.close();
             if (cb) cb(true);
           } else {
             logger.error("User " + account + " NOT authenticated");
             if (jwt) knownJWTTokens[jwt] = false;
+            db.close();
             if (cb) cb(false);
           }
         })
@@ -39,6 +41,7 @@ var checkUser = function(account, passwd, cb, jwt, knownJWTTokens) {
   } else {
     logger.warn("No user specified, NOT authenticated");
     if (jwt) knownJWTTokens[jwt] = false;
+    db.close();
     if (cb) cb(false);
   }
 };
