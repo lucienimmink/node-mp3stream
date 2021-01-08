@@ -8,7 +8,7 @@
     "async": "^3.2.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
-    "chokidar": "^3.4.3",
+    "chokidar": "^3.5.0",
     "compression": "^1.7.4",
     "dblite": "^1.1.4",
     "delete": "^1.1.0",
