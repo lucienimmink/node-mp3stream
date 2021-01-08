@@ -1,13 +1,8 @@
 const fs = require("fs");
-const log4js = require("log4js");
 const { Crypto } = require("@peculiar/webcrypto");
-const crypto = new Crypto();
+const logger = require('./logger')('crypto');
 
-log4js.configure({
-  appenders: { crypto: { type: "file", filename: "logs/mp3stream.log" } },
-  categories: { default: { appenders: ["crypto"], level: "info" } }
-});
-const logger = log4js.getLogger("crypto");
+const crypto = new Crypto();
 
 const generateKeys = async () => {
   const { privateKey, publicKey } = await crypto.subtle.generateKey(

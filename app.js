@@ -5,7 +5,6 @@ var express = require("express"),
   compression = require("compression"),
   http2 = require("http2e"),
   expressHTTP2Workaround = require("express-http2-workaround"),
-  log4js = require("log4js"),
   bodyParser = require("body-parser"),
   cors = require("./modules/cors"),
   cache = require("./modules/cache"),
@@ -22,15 +21,9 @@ var express = require("express"),
   ask = require("./modules/ask"),
   askUser = require("./modules/askUser"),
   package = require("./package.json"),
-  app = express();
-socket = require("./endpoints/socket");
-
-// set-up main logger
-log4js.configure({
-  appenders: { app: { type: "file", filename: "logs/mp3stream.log" } },
-  categories: { default: { appenders: ["app"], level: "info" } },
-});
-const logger = log4js.getLogger("app");
+  app = express(),
+  socket = require("./endpoints/socket"),
+  logger = require("./modules/logger")("app");
 
 if (!crypto.doKeysExist()) {
   crypto.generateKeys();
@@ -47,7 +40,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.disable("x-powered-by");
-
 
 const startup = () => {
   // set-up endpoints
@@ -83,7 +75,7 @@ const startup = () => {
     );
   }
   socket(io);
-}
+};
 
 // if no db = clean set-up = create clean db
 // afterwards start 'the rest'
@@ -103,13 +95,13 @@ if (addUserMode) {
     );
   }
   if (!fs.existsSync("./users.db")) {
-    console.log('focus on the terminal :)');
+    console.log("focus on the terminal :)");
     askUser(false, () => {
-      logger.info('user db has been created; now start-up');
+      logger.info("user db has been created; now start-up");
       startup();
     });
   } else {
-    logger.info('user db present; now start-up');
+    logger.info("user db present; now start-up");
     startup();
   }
 }

@@ -1,14 +1,8 @@
 var validateJwt = require("./../modules/validateJwt"),
   fs = require("fs"),
-  log4js = require("log4js");
+  logger = require("./../modules/logger")("listen");
 
-log4js.configure({
-  appenders: { listen: { type: "file", filename: "logs/mp3stream.log" } },
-  categories: { default: { appenders: ["listen"], level: "info" } }
-});
-const logger = log4js.getLogger("listen");
-
-module.exports = function(req, res) {
+module.exports = function (req, res) {
   if (!process.env.MUSICPATH || process.env.MUSICPATH === "") {
     logger.fatal("Configuration is not complete");
     res.statusCode = 500;
@@ -18,9 +12,10 @@ module.exports = function(req, res) {
   var path = process.env.MUSICPATH + req.query.path,
     full = req.query.full,
     jwt = req.query.jwt;
-  validateJwt(jwt, function(val) {
+  validateJwt(jwt, function (val) {
     if (val) {
-      fs.exists(path, function(exists) {
+      // fs.stat!
+      fs.exists(path, function (exists) {
         if (exists) {
           var mime = "audio/mpeg";
 
@@ -49,7 +44,7 @@ module.exports = function(req, res) {
               "Content-Range": "bytes " + start + "-" + end + "/" + total,
               "Accept-Ranges": "bytes",
               "Content-Length": chunksize,
-              "Content-Type": mime
+              "Content-Type": mime,
             });
             file.pipe(res);
           } else {
@@ -58,7 +53,7 @@ module.exports = function(req, res) {
 
             res.writeHead(200, {
               "Content-Type": mime,
-              "Content-Length": stat.size
+              "Content-Length": stat.size,
             });
 
             var readStream = fs.createReadStream(path);

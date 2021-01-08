@@ -1,16 +1,9 @@
 const fs = require("fs");
+const { Crypto } = require("@peculiar/webcrypto");
 const db = require("./../modules/db");
 const generateJWT = require("./../modules/generateJWT");
-const { Crypto } = require("@peculiar/webcrypto");
-const log4js = require("log4js");
 
 const crypto = new Crypto();
-
-log4js.configure({
-  appenders: { authenticate: { type: "file", filename: "logs/mp3stream.log" } },
-  categories: { default: { appenders: ["authenticate"], level: "info" } }
-});
-const logger = log4js.getLogger("authenticate");
 
 module.exports = async function(req, res) {
   const { encryptedPayload } = req.body;

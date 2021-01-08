@@ -1,27 +1,20 @@
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
 const dblite = require("dblite");
-const log4js = require("log4js");
-const fs = require("fs");
+const logger = require('./logger')('db');
 
-log4js.configure({
-  appenders: { db: { type: "file", filename: "logs/mp3stream.log" } },
-  categories: { default: { appenders: ["db"], level: "info" } }
-});
-const logger = log4js.getLogger("db");
-
-var checkUser = function(account, passwd, cb, jwt, knownJWTTokens) {
+var checkUser = function (account, passwd, cb, jwt, knownJWTTokens) {
   if (account && passwd) {
     var db = dblite("./users.db");
     db.query(
       "SELECT * FROM users WHERE username = :account",
       {
-        account: account
+        account: account,
       },
       {
         username: String,
-        passwd: String
+        passwd: String,
       },
-      function(rows) {
+      function (rows) {
         var user = rows.length && rows[0];
         compare(passwd, user.passwd, (compares) => {
           if (compares) {
@@ -35,7 +28,7 @@ var checkUser = function(account, passwd, cb, jwt, knownJWTTokens) {
             db.close();
             if (cb) cb(false);
           }
-        })
+        });
       }
     );
   } else {
@@ -47,15 +40,15 @@ var checkUser = function(account, passwd, cb, jwt, knownJWTTokens) {
 };
 
 const compare = (password, hash, cb) => {
-  bcrypt.compare(password, hash, function(err, isMatch) {
+  bcrypt.compare(password, hash, function (err, isMatch) {
     if (err) {
-      throw err
+      throw err;
     } else if (!isMatch) {
-      cb(false)
+      cb(false);
     } else {
-      cb(true)
+      cb(true);
     }
-  })
-}
+  });
+};
 
 module.exports = checkUser;

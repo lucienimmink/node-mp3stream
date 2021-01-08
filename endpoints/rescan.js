@@ -1,15 +1,9 @@
 var validateJwt = require("./../modules/validateJwt"),
-  log4js = require("log4js");
-
-log4js.configure({
-  appenders: { rescan: { type: "file", filename: "logs/mp3stream.log" } },
-  categories: { default: { appenders: ["rescan"], level: "info" } }
-});
-const logger = log4js.getLogger("rescan");
+  logger = require("./../modules/logger")("rescan");
 
 function initiateScan() {
   var exec = require("child_process").exec;
-  exec("python --version", function(error, stdout, stderr) {
+  exec("python --version", function (error, stdout, stderr) {
     var out = (stdout = stderr);
     var hasPython = false;
     if (out.indexOf("2.") !== 0) {
@@ -25,7 +19,7 @@ function initiateScan() {
           process.env.MUSICPATH +
           " --destpath " +
           outdir,
-        function(error, stdout, stderr) {
+        function (error, stdout, stderr) {
           logger.info(stdout);
         }
       );
@@ -37,9 +31,9 @@ function initiateScan() {
   });
 }
 
-module.exports = function(req, res) {
+module.exports = function (req, res) {
   var jwt = req.query.jwt;
-  validateJwt(jwt, function(val) {
+  validateJwt(jwt, function (val) {
     if (val) {
       initiateScan();
       res.statusCode = 204;

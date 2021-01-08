@@ -1,43 +1,37 @@
 var request = require("request"),
-  log4js = require("log4js"),
+  logger = require("../modules/logger")("image-proxy"),
   fs = require("fs"),
   url = require("url");
 
-log4js.configure({
-  appenders: { imageProxy: { type: "file", filename: "logs/mp3stream.log" } },
-  categories: { default: { appenders: ["imageProxy"], level: "info" } }
-});
-const logger = log4js.getLogger("imageProxy");
-
-var serveFile = function(path, res) {
-  fs.readFile(path, function(err, buffer) {
+var serveFile = function (path, res) {
+  fs.readFile(path, function (err, buffer) {
     res.writeHead(200, {
       "Content-Length": Buffer.byteLength(buffer),
-      "Content-Type": "image/png"
+      "Content-Type": "image/png",
     });
-    res.write(buffer, function() {
+    res.write(buffer, function () {
       res.end();
     });
   });
 };
 
-var cacheFile = function(queryData, res, cacheName, cb) {
+var cacheFile = function (queryData, res, cacheName, cb) {
   var cacheData = "";
   if (queryData.url) {
     request({
-      url: queryData.url
+      url: queryData.url,
     })
-      .on("error", function(e) {
+      .on("error", function (e) {
         res.end(e);
       })
-      .on("end", function(e) {
+      .on("end", function (e) {
         if (cacheData) {
           logger.info("write cache as " + cacheName);
           fs.writeFile(
             "public/data/cache/" + cacheName,
             cacheData,
             "binary",
-            function(err, data) {
+            function (err, data) {
               if (err) {
                 logger.error(err);
               } else {
@@ -47,16 +41,16 @@ var cacheFile = function(queryData, res, cacheName, cb) {
           );
         }
       })
-      .on("response", function(r) {
+      .on("response", function (r) {
         r.setEncoding("binary");
-        r.on("data", function(chunk) {
+        r.on("data", function (chunk) {
           cacheData += chunk;
         });
       });
   }
 };
 
-module.exports = function(req, res) {
+module.exports = function (req, res) {
   var queryData = url.parse(req.url, true).query;
   var cacheName = queryData.url;
   cacheName = cacheName.substr(cacheName.indexOf("300x300") + 7);
@@ -65,7 +59,7 @@ module.exports = function(req, res) {
     serveFile("public/data/cache/" + cacheName, res);
   } else {
     // get file from internet, store it and then serve it.
-    cacheFile(queryData, res, cacheName, function() {
+    cacheFile(queryData, res, cacheName, function () {
       serveFile("public/data/cache/" + cacheName, res);
     });
   }
