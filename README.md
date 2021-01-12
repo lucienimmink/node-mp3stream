@@ -43,9 +43,9 @@ To run it deamonized
 `npm run docker: run`
 Please refer to the `package.json` to alter settings like the port and music volume.
 
-### music volume
+### volumes
 
-Create a named volume that you mount, for example:
+Create named volume that you mount, for example:
 
 ```yaml
 docker volume create \
@@ -66,3 +66,5 @@ docker volume create \
 --opt o=bind \
 <volume-name>
 ```
+
+Do this for both `music-share` and `data` and afterwards just run `npm run docker:start`, happy streaming!

@@ -1,4 +1,4 @@
-FROM node:15.5.0-alpine3.10
+FROM node:15.5.1-alpine3.12
 
 RUN apk update \
     && apk add sqlite \
@@ -7,11 +7,10 @@ RUN apk update \
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY . ./
 
 RUN npm install
 
-COPY . ./
 COPY .env.docker ./.env
 
 COPY .node-music.json ./public/data/node-music.json

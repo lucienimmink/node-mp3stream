@@ -23,6 +23,7 @@ var express = require("express"),
   package = require("./package.json"),
   app = express(),
   socket = require("./endpoints/socket"),
+  outdir = process.env.MUSICDB,
   logger = require("./modules/logger")("app");
 
 if (!crypto.doKeysExist()) {
@@ -94,7 +95,7 @@ if (addUserMode) {
       "Visit https://www.jsmusicdb.com and use this server as back-end"
     );
   }
-  if (!fs.existsSync("./users.db")) {
+  if (!fs.existsSync(`${outdir}users.db`)) {
     console.log("focus on the terminal :)");
     askUser(false, () => {
       logger.info("user db has been created; now start-up");

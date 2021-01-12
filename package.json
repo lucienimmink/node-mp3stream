@@ -8,7 +8,7 @@
     "async": "^3.2.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
-    "chokidar": "^3.4.3",
+    "chokidar": "^3.5.0",
     "compression": "^1.7.4",
     "dblite": "^1.1.4",
     "delete": "^1.1.0",
@@ -23,15 +23,14 @@
     "prompts": "^2.4.0",
     "request": "^2.88.2",
     "scanner.py": "git+https://github.com/lucienimmink/scanner.py.git",
-    "socket.io": "^3.0.4",
+    "socket.io": "^3.0.5",
     "symlink-or-copy": "^1.3.1",
     "winston": "^3.3.3"
   },
   "scripts": {
     "start": "node app.js",
     "docker:build": "docker build -t jsmusicdb/node-mp3stream:latest .",
-    "docker:setup": "npm run --silent docker:build && docker run --name node-mp3stream -it --rm -p 16882:16882/tcp -v music-share:/mnt/music jsmusicdb/node-mp3stream:latest",
-    "docker:run": "docker run -d --rm -p 16882:16882/tcp -v music-share:/mnt/music jsmusicdb/node-mp3stream:latest",
+    "docker:run": "docker run -d --rm -p 16882:16882/tcp -v music-share:/mnt/music data:/app/public/data jsmusicdb/node-mp3stream:latest",
     "docker:push": "docker push jsmusicdb/node-mp3stream:latest"
   },
   "engines": {

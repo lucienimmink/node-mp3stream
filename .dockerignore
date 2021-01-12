@@ -11,6 +11,7 @@ public
 .private-key.json
 .project
 .public-key.json
+*.log
 Dockerfile
 LICENCE
 README.md

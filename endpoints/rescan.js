@@ -13,7 +13,6 @@ function initiateScan() {
     if (hasPython) {
       // spawn python process
       var outdir = process.env.MUSICDB;
-      outdir = outdir.substring(0, outdir.indexOf("node-music.json"));
       exec(
         "python ./node_modules/scanner.py/scanner.py " +
           process.env.MUSICPATH +
