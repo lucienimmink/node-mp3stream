@@ -1,7 +1,6 @@
 var prompts = require("prompts"),
   bcrypt = require("bcryptjs"),
   dblite = require("dblite"),
-  outdir = process.env.MUSICDB,
   logger = require('./logger')('ask-user');
 
 module.exports = async function (exit = false, cb) {
@@ -26,7 +25,7 @@ module.exports = async function (exit = false, cb) {
     message: "What password do you want to use?",
   });
   hash(password, (hash) => {
-    const db = dblite(`${outdir}users.db`);
+    const db = dblite(`./users.db`);
     db.query(
       "CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)",
       function (err, res) {

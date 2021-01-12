@@ -1,11 +1,10 @@
 const bcrypt = require("bcryptjs");
 const dblite = require("dblite");
-const outdir = process.env.MUSICDB;
 const logger = require('./logger')('db');
 
 var checkUser = function (account, passwd, cb, jwt, knownJWTTokens) {
   if (account && passwd) {
-    const db = dblite(`${outdir}users.db`);
+    const db = dblite(`./users.db`);
     db.query(
       "SELECT * FROM users WHERE username = :account",
       {

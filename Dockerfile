@@ -13,8 +13,6 @@ RUN npm install
 
 COPY .env.docker ./.env
 
-COPY .node-music.json ./public/data/node-music.json
-
 EXPOSE 16882
 
 CMD ["node", "app.js"]
