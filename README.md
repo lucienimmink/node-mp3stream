@@ -67,4 +67,4 @@ docker volume create \
 <volume-name>
 ```
 
-Do this for both `music-share` and `data` and afterwards just run `npm run docker:start`, happy streaming!
+Do this for both `music-share` and `data` and afterwards just run `npm run docker:run`, happy streaming!
