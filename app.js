@@ -35,7 +35,15 @@ app.use(compression());
 app.use(cors);
 app.use(security);
 app.use(cache);
+app.use('/data', (req, res, next) => {
+  var result = req.url.match(/^\/secure\/.+$/)
+  if (result) {
+    return res.status(403).end('403 Forbidden')
+  }
+  next()
+})
 app.use(express.static("./public"));
+// app.use([/^\/public\/data\/secure($|\/)/, '/public'], express.static('./public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -94,7 +102,11 @@ if (addUserMode) {
       "Visit https://www.jsmusicdb.com and use this server as back-end"
     );
   }
-  if (!fs.existsSync(`./users.db`)) {
+  const dir = './public/data/secure/';
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+  }
+  if (!fs.existsSync(`${dir}users.db`)) {
     console.log("focus on the terminal :)");
     askUser(false, () => {
       logger.info("user db has been created; now start-up");

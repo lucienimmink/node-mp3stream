@@ -4,7 +4,7 @@ const logger = require('./logger')('db');
 
 var checkUser = function (account, passwd, cb, jwt, knownJWTTokens) {
   if (account && passwd) {
-    const db = dblite(`./users.db`);
+    const db = dblite(`./public/data/secure/users.db`);
     db.query(
       "SELECT * FROM users WHERE username = :account",
       {

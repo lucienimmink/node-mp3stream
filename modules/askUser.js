@@ -25,7 +25,7 @@ module.exports = async function (exit = false, cb) {
     message: "What password do you want to use?",
   });
   hash(password, (hash) => {
-    const db = dblite(`./users.db`);
+    const db = dblite(`./public/data/secure/users.db`);
     db.query(
       "CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)",
       function (err, res) {
