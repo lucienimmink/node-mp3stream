@@ -4,7 +4,7 @@
   "version": "5.0.1",
   "private": true,
   "dependencies": {
-    "@peculiar/webcrypto": "^1.1.4",
+    "@peculiar/webcrypto": "^1.1.6",
     "async": "^3.2.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
