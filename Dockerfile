@@ -1,4 +1,4 @@
-FROM node:15.11-alpine3.13
+FROM node:15.12-alpine3.13
 
 RUN apk update \
     && apk add sqlite \
