@@ -30,7 +30,7 @@
   "scripts": {
     "start": "node app.js",
     "docker:build": "docker build -t jsmusicdb/node-mp3stream:latest .",
-    "docker:run": "docker run -d --rm -p 16882:16882/tcp -v music-share:/mnt/music data:/app/public/data jsmusicdb/node-mp3stream:latest",
+    "docker:run": "docker run -d --rm -p 16882:16882/tcp jsmusicdb/node-mp3stream:latest",
     "docker:push": "docker push jsmusicdb/node-mp3stream:latest",
     "version": "npm run docker:build && npm run docker:push",
     "postversion": "git push && git push --tags"
