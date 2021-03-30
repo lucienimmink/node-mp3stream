@@ -3,7 +3,8 @@ FROM node:15.12-alpine3.13
 RUN apk update \
     && apk add sqlite \
     && apk add python3 \
-    && apk add socat
+    && apk add socat \
+    && ln -sf python3 /usr/bin/python
 
 WORKDIR /app
 
