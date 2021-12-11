@@ -1,10 +1,10 @@
 const fs = require("fs");
 const { Crypto } = require("@peculiar/webcrypto");
-var jwt = require("jwt-simple"),
-  db = require("./db");
+const jwt = require("jwt-simple");
+const db = require("./db");
 
 
-var knownJWTTokens = {};
+const knownJWTTokens = {};
 
 const crypto = new Crypto();
 
@@ -33,29 +33,35 @@ const decryptPassword = async (encrypted) => {
   return new TextDecoder().decode(data);
 };
 
-var parseToken = function(token) {
+const parseToken = (token) => {
   if (!token) {
     return false;
   }
-  var decoded = jwt.decode(token, "jsmusicdbnext");
-  if (typeof decoded === "string") {
-    decoded = JSON.parse(decoded);
+  try {
+    let decoded = jwt.decode(token, "jsmusicdbnext");
+    if (typeof decoded === "string") {
+      return JSON.parse(decoded);
+    }
+    return decoded;
+  } catch (e) {
+    return null;
   }
-  return decoded;
 };
 
 module.exports = async function(jwt, cb) {
   if (!knownJWTTokens[jwt]) {
-    var decoded = parseToken(jwt);
+    const decoded = parseToken(jwt);
     if (!decoded) {
       cb(false);
     }
     // for now we keep support for unencrypted passwords as well; for now :)
-    let password = decoded.password;
-    if (decoded.encryptedPassword) {
-      password = await decryptPassword(decoded.encryptedPassword);
+    let password = decoded?.password;
+    if (decoded?.encryptedPassword) {
+      try {
+        password = await decryptPassword(decoded.encryptedPassword);
+      } catch (e) {}
     }
-    db(decoded.name, password, cb, jwt, knownJWTTokens);
+    db(decoded?.name, password, cb, jwt, knownJWTTokens);
   } else {
     cb(true);
   }
