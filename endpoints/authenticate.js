@@ -55,33 +55,39 @@ module.exports = async function(req, res) {
     false,
     ["decrypt"]
   );
-  const data = await crypto.subtle.decrypt(
-    {
-      name: "RSA-OAEP"
-    },
-    privateKey,
-    payloadBuffer
-  );
-  const payloadJSON = JSON.parse(ab2str(data));
-  const encryptedPassword = await encryptPassword(payloadJSON.password);
-  // this should contain name and password; use that to verify the account
-  db(payloadJSON.name, payloadJSON.password, result => {
-    if (!result) {
-      res.statusCode = 401;
-      res.end();
-      return;
-    }
-    const jwt = generateJWT({
-      name: payloadJSON.name,
-      encryptedPassword
-    });
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "application/json");
-    res.write(
-      JSON.stringify({
-        jwt
-      })
+  try {
+    const data = await crypto.subtle.decrypt(
+      {
+        name: "RSA-OAEP"
+      },
+      privateKey,
+      payloadBuffer
     );
+    const payloadJSON = JSON.parse(ab2str(data));
+    const encryptedPassword = await encryptPassword(payloadJSON.password);
+    // this should contain name and password; use that to verify the account
+    db(payloadJSON.name, payloadJSON.password, result => {
+      if (!result) {
+        res.statusCode = 401;
+        res.end();
+        return;
+      }
+      const jwt = generateJWT({
+        name: payloadJSON.name,
+        encryptedPassword
+      });
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.write(
+        JSON.stringify({
+          jwt
+        })
+      );
+      res.end();
+    });
+  } catch (e) {
+    res.statusCode = 401;
     res.end();
-  });
+    return;
+  }
 };
