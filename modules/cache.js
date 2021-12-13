@@ -3,6 +3,8 @@ module.exports = function(req, res, next) {
   if (
     req.url.indexOf("node-music.json") !== -1 ||
     req.url.indexOf("index.html") !== -1 ||
+    req.url.indexOf("version") !== -1 ||
+    req.url.indexOf("public-key") !== -1 ||
     req.url === "/"
   ) {
     res.setHeader("Cache-Control", "public, max-age=0"); // no cache

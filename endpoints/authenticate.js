@@ -86,6 +86,7 @@ module.exports = async function(req, res) {
       res.end();
     });
   } catch (e) {
+    console.log('authentication failure', e);
     res.statusCode = 401;
     res.end();
     return;
