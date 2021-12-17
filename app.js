@@ -10,7 +10,6 @@ var express = require("express"),
   cache = require("./modules/cache"),
   security = require("./modules/security"),
   crypto = require("./modules/crypto"),
-  imageProxy = require("./endpoints/imageProxy"),
   rescan = require("./endpoints/rescan"),
   progress = require("./endpoints/progress"),
   login = require("./endpoints/login"),
@@ -18,6 +17,8 @@ var express = require("express"),
   version = require("./endpoints/version"),
   publicKey = require("./endpoints/public-key"),
   authenticate = require("./endpoints/authenticate"),
+  getImage = require('./endpoints/getImage'),
+  postImage = require('./endpoints/postImage'),
   ask = require("./modules/ask"),
   askUser = require("./modules/askUser"),
   package = require("./package.json"),
@@ -51,7 +52,6 @@ app.disable("x-powered-by");
 
 const startup = () => {
   // set-up endpoints
-  app.get("/data/image-proxy", imageProxy);
   app.get("/listen", listen);
   app.post("/login", login);
   app.get("/rescan", rescan);
@@ -59,6 +59,8 @@ const startup = () => {
   app.get("/version", version);
   app.get("/public-key", publicKey);
   app.post("/authenticate", authenticate);
+  app.get("/image", getImage);
+  app.post("/image", postImage);
 
   // start-up express
   let io;
