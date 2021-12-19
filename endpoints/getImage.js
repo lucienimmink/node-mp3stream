@@ -54,6 +54,16 @@ const cacheFile = (queryData, res, cacheName, cb) => {
 
 module.exports = (req, res) => {
   const queryData = url.parse(req.url, true).query;
+  const mbid = queryData.mbid;
+  if (mbid) {
+    if (fs.existsSync(`public/data/cache/${cacheName}`)) {
+      serveFile(`public/data/cache/${mbid}`, res);
+      return;
+    }
+    res.writeHead(404, "Not found");
+    res.end();
+    return;
+  }
   let cacheName = queryData.url;
   if (cacheName.includes("https://")) {
     cacheName = cacheName.substring(8)
