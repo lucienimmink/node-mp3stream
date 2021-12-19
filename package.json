@@ -1,7 +1,7 @@
 {
   "name": "node-mp3stream",
   "description": "simple mp3 streamer",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "private": true,
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
