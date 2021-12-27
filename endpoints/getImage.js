@@ -55,6 +55,9 @@ module.exports = (req, res) => {
     if (matchedFiles.length > 0) {
       returnPath(matchedFiles[0], req, res);
     } else {
+      // don't cache 404 results please
+      res.removeHeader("Cache-Control");
+      res.setHeader("Expires", new Date(new Date.getTime() - 1).toUTCString());
       res.writeHead(404, "Not found");
       res.end();
     }
