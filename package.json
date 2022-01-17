@@ -13,7 +13,7 @@
     "compression": "^1.7.4",
     "dblite": "^1.1.4",
     "delete": "^1.1.0",
-    "dotenv": "^12.0.0",
+    "dotenv": "^13.0.0",
     "duration-format": "^0.0.2",
     "express": "^4.17.1",
     "express-http2-workaround": "^1.1.3",
