@@ -19,6 +19,7 @@ var express = require("express"),
   authenticate = require("./endpoints/authenticate"),
   getImage = require('./endpoints/getImage'),
   postImage = require('./endpoints/postImage'),
+  proxy = require('./endpoints/proxy'),
   ask = require("./modules/ask"),
   askUser = require("./modules/askUser"),
   package = require("./package.json"),
@@ -61,6 +62,7 @@ const startup = () => {
   app.post("/authenticate", authenticate);
   app.get("/image", getImage);
   app.post("/image", postImage);
+  app.get("/proxy", proxy);
 
   // start-up express
   let io;
