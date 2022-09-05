@@ -9,14 +9,18 @@ module.exports = (req, res) => {
     validateJwt(jwt, function (val) {
         if (val) {
             if (remote) {
+                logger.log(`fetching ${remote}`);
                 request({
                     url: remote,
                     method: 'GET'
                 }, function (error, response, body) {
                     res.write(body);
+                    res.end();
                 })
+            } else {
+                logger.warn('No remote given');
+                res.end();
             }
-            res.end();
         } else {
             res.statusCode = 401;
             res.end();
