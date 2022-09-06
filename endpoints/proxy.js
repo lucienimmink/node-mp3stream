@@ -9,7 +9,7 @@ module.exports = (req, res) => {
     validateJwt(jwt, function (val) {
         if (val) {
             if (remote) {
-                logger.log(`fetching ${remote}`);
+                logger.info(`fetching ${remote}`);
                 request({
                     url: remote,
                     method: 'GET'
