@@ -24,8 +24,7 @@ var express = require("express"),
   askUser = require("./modules/askUser"),
   package = require("./package.json"),
   app = express(),
-  socket = require("./endpoints/socket"),
-    logger = require("./modules/logger")("app");
+  logger = require("./modules/logger")("app");
 
 if (!crypto.doKeysExist()) {
   crypto.generateKeys();
@@ -65,7 +64,6 @@ const startup = () => {
   app.get("/proxy", proxy);
 
   // start-up express
-  let io;
   if (process.env.USESSL === "true") {
     var privateKey = fs.readFileSync(process.env.SSLKEY, "utf8");
     var certificate = fs.readFileSync(process.env.SSLCERT, "utf8");
@@ -78,15 +76,12 @@ const startup = () => {
     logger.info(
       `node mp3stream ${package.version} is set-up and running in http/2 mode`
     );
-    io = require("socket.io")(httpsServer);
   } else {
     const server = app.listen(process.env.PORT);
-    io = require("socket.io")(server);
     logger.info(
       `node mp3stream ${package.version} is set-up and running in http mode`
     );
   }
-  socket(io);
 };
 
 // if no db = clean set-up = create clean db
@@ -107,7 +102,7 @@ if (addUserMode) {
     );
   }
   const dir = './public/data/secure/';
-  if (!fs.existsSync(dir)){
+  if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
   if (!fs.existsSync(`${dir}users.db`)) {
