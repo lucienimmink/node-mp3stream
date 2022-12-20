@@ -20,6 +20,7 @@ var express = require("express"),
   getImage = require('./endpoints/getImage'),
   postImage = require('./endpoints/postImage'),
   proxy = require('./endpoints/proxy'),
+  sse = require('./endpoints/sse'),
   ask = require("./modules/ask"),
   askUser = require("./modules/askUser"),
   package = require("./package.json"),
@@ -62,6 +63,7 @@ const startup = () => {
   app.get("/image", getImage);
   app.post("/image", postImage);
   app.get("/proxy", proxy);
+  app.get("/stream", sse);
 
   // start-up express
   if (process.env.USESSL === "true") {
