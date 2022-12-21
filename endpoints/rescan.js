@@ -15,6 +15,7 @@ var poll = (req, force) => {
   var clients = req.app.locals.clients;
   if (force) {
     clients.forEach(client => {
+      client.res.write(`event: message\n`);
       client.res.write(`data: ${parseProgress()}\n\n`)
     });
     setTimeout(() => {
@@ -27,7 +28,10 @@ var poll = (req, force) => {
       var progress = fs.readFileSync(progressFile, "utf8");
     }
     // tell clients the progress is updated
-    clients.forEach(client => client.res.write(`data: ${parseProgress(progress)}\n\n`));
+    clients.forEach(client => {
+      client.res.write(`event: message\n`);
+      client.res.write(`data: ${parseProgress(progress)}\n\n`)
+    });
     // if progress is not 100, poll again
     if (progress != "100") {
       setTimeout(() => {
