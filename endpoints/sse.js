@@ -43,5 +43,6 @@ module.exports = function (req, res, next) {
     req.on('close', () => {
         logger.info(`SSEclient-${clientId} Connection closed`);
         req.app.locals.clients = req.app.locals.clients.filter(client => client.id !== clientId);
+        res.end();
     });
 };
