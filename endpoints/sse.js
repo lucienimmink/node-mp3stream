@@ -32,8 +32,7 @@ module.exports = function (req, res, next) {
 
     // response.write(data);
 
-    res.write(`event: open\n`);
-    res.write(`data: SSE connection opened\n\n`);
+    res.write(`:ok\n\n`);
 
     const clientId = Date.now();
 
