@@ -8,13 +8,13 @@ module.exports = function (req, res, next) {
         'Cache-Control': 'no-cache',
         // cors
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Connection, Cache-Control, Pragma',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Connection, Cache-Control, Pragma, cache-control',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
     };
+    res.writeHead(200, headers);
     if ("OPTIONS" == req.method) {
         res.sendStatus(200);
     }
-    res.writeHead(200, headers);
 
     // const data = `data: ${JSON.stringify(facts)}\n\n`;
 
