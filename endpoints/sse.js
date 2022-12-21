@@ -25,10 +25,7 @@ module.exports = function (req, res, next) {
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
     };
     res.writeHead(200, headers);
-    if ("OPTIONS" == req.method) {
-        res.sendStatus(200);
-    }
-
+    res.connection.setTimeout(0); // disable timeout; clients will be allowed to remain connected indefinitely
     // const data = `data: ${JSON.stringify(facts)}\n\n`;
 
     // response.write(data);
