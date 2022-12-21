@@ -10,6 +10,7 @@ module.exports = function (req, res, next) {
             'Access-Control-Allow-Origin': req.headers.origin,
             'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
             'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Credentials': 'true'
         };
         res.writeHead(200, headers);
         res.sendStatus(200);
@@ -23,6 +24,7 @@ module.exports = function (req, res, next) {
         'Access-Control-Allow-Origin': req.headers.origin,
         'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Connection, Cache-Control, Pragma',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Credentials': 'true'
     };
     res.writeHead(200, headers);
     res.connection.setTimeout(0); // disable timeout; clients will be allowed to remain connected indefinitely
