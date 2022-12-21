@@ -7,7 +7,7 @@ module.exports = function (req, res, next) {
             'Content-Type': 'text/event-stream',
 
             // cors
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': req.headers.origin,
             'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
             'Access-Control-Allow-Methods': 'GET, OPTIONS',
         };
@@ -20,7 +20,7 @@ module.exports = function (req, res, next) {
         'Connection': 'keep-alive',
         'Cache-Control': 'no-cache',
         // cors
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': req.headers.origin,
         'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Connection, Cache-Control, Pragma',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
     };
