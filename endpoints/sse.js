@@ -2,6 +2,7 @@ var logger = require("./../modules/logger")("sse");
 
 module.exports = function (req, res, next) {
     req.app.locals.clients = req.app.locals.clients || [];
+    res.removeHeader('Content-Encoding');
     if ("OPTIONS" == req.method) {
         const headers = {
             'Content-Type': 'text/event-stream',
@@ -28,11 +29,7 @@ module.exports = function (req, res, next) {
     };
     res.writeHead(200, headers);
     res.connection.setTimeout(0); // disable timeout; clients will be allowed to remain connected indefinitely
-    // const data = `data: ${JSON.stringify(facts)}\n\n`;
-
-    // response.write(data);
-
-    res.write(`:ok\n\n`);
+    res.write(`data: SSE connection opened\n\n`);
 
     const clientId = Date.now();
 
