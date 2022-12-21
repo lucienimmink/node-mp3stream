@@ -5,8 +5,15 @@ module.exports = function (req, res, next) {
     const headers = {
         'Content-Type': 'text/event-stream',
         'Connection': 'keep-alive',
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        // cors
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
     };
+    if ("OPTIONS" == req.method) {
+        res.sendStatus(200);
+    }
     res.writeHead(200, headers);
 
     // const data = `data: ${JSON.stringify(facts)}\n\n`;
