@@ -2,31 +2,11 @@ var logger = require("./../modules/logger")("sse");
 
 module.exports = function (req, res, next) {
     req.app.locals.clients = req.app.locals.clients || [];
-    if ("OPTIONS" == req.method) {
-        const headers = {
-            'Content-Type': 'text/event-stream',
 
-            // cors
-            'Access-Control-Allow-Origin': req.headers.origin,
-            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Cache-Control',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Allow-Credentials': 'true'
-        };
-        res.writeHead(200, headers);
-        res.sendStatus(200);
-        return;
-    }
-    const headers = {
-        'Content-Type': 'text/event-stream',
-        'Connection': 'keep-alive',
-        'Cache-Control': 'no-cache',
-        // cors
-        'Access-Control-Allow-Origin': req.headers.origin,
-        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Connection, Cache-Control, Pragma',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Credentials': 'true'
-    };
-    res.writeHead(200, headers);
+    res.header('Content-Type', 'text/event-stream');
+    res.header('Cache-Control', 'no-cache');
+    res.header('Connection', 'keep-alive');
+
     res.connection.setTimeout(0); // disable timeout; clients will be allowed to remain connected indefinitely
     res.write(`data: SSE connection opened\n\n`);
 

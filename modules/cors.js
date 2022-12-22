@@ -1,7 +1,7 @@
 // simple middleware that appends CORS headers to all requests (as long as the request is a GET)
 
-module.exports = function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+module.exports = function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
   res.header("Access-Control-Allow-Methods", "GET");
   res.header(
     "Access-Control-Allow-Headers",
