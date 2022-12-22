@@ -33,7 +33,15 @@ if (!crypto.doKeysExist()) {
 
 // set-up express
 app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
-app.use(compression());
+app.use(compression({
+  filter: function (req, res) {
+    // don't compress an eventstream (content-type: text/event-stream)
+    if (res.getHeader('Content-Type') === 'text/event-stream') {
+      return false;
+    }
+    return compression.filter(req, res)
+  }
+}));
 app.use(cors);
 app.use(security);
 app.use(cache);

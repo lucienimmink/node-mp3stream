@@ -2,14 +2,13 @@ var logger = require("./../modules/logger")("sse");
 
 module.exports = function (req, res, next) {
     req.app.locals.clients = req.app.locals.clients || [];
-    res.removeHeader('Content-Encoding');
     if ("OPTIONS" == req.method) {
         const headers = {
             'Content-Type': 'text/event-stream',
 
             // cors
             'Access-Control-Allow-Origin': req.headers.origin,
-            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Cache-Control',
             'Access-Control-Allow-Methods': 'GET, OPTIONS',
             'Access-Control-Allow-Credentials': 'true'
         };
