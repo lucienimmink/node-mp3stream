@@ -7,8 +7,7 @@ module.exports = function (req, res, next) {
     res.header('Cache-Control', 'no-cache');
     res.header('Connection', 'keep-alive');
 
-    res.connection.setTimeout(0); // disable timeout; clients will be allowed to remain connected indefinitely
-    res.write(`data: SSE connection opened\n\n`);
+    res.write(`data: ${JSON.stringify({ progress: 0, status: "ready" })}\n\n`);
 
     const clientId = Date.now();
 
