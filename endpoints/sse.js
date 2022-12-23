@@ -5,7 +5,8 @@ module.exports = function (req, res, next) {
 
     res.header('Content-Type', 'text/event-stream');
     res.header('Cache-Control', 'no-cache');
-    res.header('Connection', 'keep-alive');
+
+    res.connection.setTimeout(0);
 
     res.write(`data: ${JSON.stringify({ progress: 0, status: "ready" })}\n\n`);
 
