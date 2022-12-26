@@ -4,7 +4,7 @@ module.exports = function (req, res, next) {
     req.app.locals.clients = req.app.locals.clients || [];
 
     res.header('Content-Type', 'text/event-stream');
-    res.header('Cache-Control', 'no-cache');
+    res.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
 
     res.connection.setTimeout(0);
 
