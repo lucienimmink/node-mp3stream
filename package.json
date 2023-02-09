@@ -30,13 +30,17 @@
   "scripts": {
     "start": "node app.js",
     "docker:build": "docker build -t jsmusicdb/node-mp3stream:latest .",
-    "docker:run": "docker run --mount source=music-share,target=/mnt/music --mount source=jsmusicdb-data,target=/app/public/data jsmusicdb/node-mp3stream:latest",
+    "docker:run": "docker run --mount source=music-share,target=/mnt/music --mount source=jsmusicdb-data,target=/app/public/data -p 16882:16882 jsmusicdb/node-mp3stream:latest",
     "docker:push": "docker push jsmusicdb/node-mp3stream:latest",
     "version": "npm run docker:build && npm run docker:push",
     "postversion": "git push && git push --tags"
   },
   "engines": {
-    "node": ">= 10.12.0",
-    "npm": ">= 6"
+    "node": ">= 19.6.0",
+    "npm": ">= 9.4.2"
+  },
+  "volta": {
+    "node": "19.6.0",
+    "npm": "9.4.2"
   }
 }
