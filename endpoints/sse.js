@@ -19,7 +19,7 @@ module.exports = function (req, res, next) {
     req.app.locals.clients.push(newClient);
 
     req.on('close', () => {
-        logger.info(`SSEclient-${clientId} Connection closed`);
+        logger.debug(`SSEclient-${clientId} Connection closed`);
         req.app.locals.clients = req.app.locals.clients.filter(client => client.id !== clientId);
         res.end();
     });
