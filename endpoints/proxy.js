@@ -14,7 +14,6 @@ module.exports = (req, res) => {
         logger.debug(`fetching ${remote}`);
         const re = type.get(remote, (resp) => {
           let data = "";
-          console.log(resp.headers);
           resp.on("data", (chunk) => {
             data += chunk;
           });
