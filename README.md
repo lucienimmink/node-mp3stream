@@ -1,7 +1,7 @@
 # Node MP3-Stream
 
-A simple mp3 streamer / webserver written in JavaScript. All you need to run is [Node.js](https://nodejs.org/en/).
-To actually play music please browse to [jsmusicdb](https://www.jsmusicdb.com) and provide credentials as you setup using the instructions below.
+A simple mp3 streamer/webserver written in JavaScript. All you need to run is [Node.js](https://nodejs.org/en/).
+To play music please browse to [JSMusicDB](https://www.jsmusicdb.com) and provide credentials as you setup using the instructions below.
 
 ## Install
 
@@ -9,7 +9,7 @@ To actually play music please browse to [jsmusicdb](https://www.jsmusicdb.com) a
 
 then
 
-`npm install`
+`npm ci`
 
 ## Run
 
@@ -17,16 +17,16 @@ then
 
 1st run will ask for the following settings
 
-- port : external http port on which the webserver will listen.
-- ssl : Do you want to use SSL; if so please answer Yes. (see notes about SSL)
-- path : path where the music is stored; you can build the music database by navigating to <mp3streamurl:port>/rescan after you have logged in.
-- username : specify a username that is able to use the program
-- password : specify the password for the username
+- port: external HTTP port on which the webserver will listen.
+- ssl: Do you want to use SSL; if so please answer Yes. (see notes about SSL)
+- path: path where the music is stored; you can build the music database by navigating to <mp3streamurl:port>/rescan after you have logged in.
+- username: specify a username that can use the program
+- password: specify the password for the username
 
 ## About SSL
 
 In `config.json` you can point to the certificate and the key used for SSL. Please update the paths manually. Most likely these files can only be read by the root user, if so restart the app as root.
-You have to make sure that the the cert and key are up to date and valid.
+You have to make sure that the cert and key are up-to-date and valid.
 
 ## Docker
 
@@ -56,7 +56,7 @@ docker volume create \
 <volume-name>
 ```
 
-where `<volume-name>` should be `music-share`, if you mount a local folder it's looks like this:
+where `<volume-name>` should be `music-share`, if you mount a local folder it looks like this:
 
 ```yaml
 docker volume create \
@@ -67,4 +67,4 @@ docker volume create \
 <volume-name>
 ```
 
-Do this for both `music-share` and `data` and afterwards just run `npm run docker:run`, happy streaming!
+Do this for both `music-share` and `data` and afterward just run `npm run docker:run`; happy streaming!

@@ -35,11 +35,11 @@
     "postversion": "git push && git push --tags"
   },
   "engines": {
-    "node": ">= 19.6.0",
-    "npm": ">= 9.4.2"
+    "node": ">= 20.3.0",
+    "npm": ">= 9.7.1"
   },
   "volta": {
-    "node": "19.6.0",
+    "node": "20.3.0",
     "npm": "9.7.1"
   }
 }
