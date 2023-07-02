@@ -20,32 +20,6 @@ var checkUser = async function (account, passwd, cb, jwt, knownJWTTokens) {
         if (cb) cb(false);
       }
     });
-    // db.query(
-    //   "SELECT * FROM users WHERE username = :account",
-    //   {
-    //     account: account,
-    //   },
-    //   {
-    //     username: String,
-    //     passwd: String,
-    //   },
-    //   function (rows) {
-    //     var user = rows.length && rows[0];
-    //     compare(passwd, user.passwd, (compares) => {
-    //       if (compares) {
-    //         logger.info("User " + account + " authenticated");
-    //         if (jwt) knownJWTTokens[jwt] = true;
-    //         if (db) db.close();
-    //         if (cb) cb(true);
-    //       } else {
-    //         logger.error("User " + account + " NOT authenticated");
-    //         if (jwt) knownJWTTokens[jwt] = false;
-    //         if (db) db.close();
-    //         if (cb) cb(false);
-    //       }
-    //     });
-    //   }
-    // );
   } else {
     logger.warn("No user specified, NOT authenticated");
     if (jwt) knownJWTTokens[jwt] = false;
