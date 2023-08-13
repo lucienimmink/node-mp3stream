@@ -1,6 +1,6 @@
 var prompts = require("prompts"),
   bcrypt = require("bcryptjs"),
-  dblite = require("dblite"),
+  SQLiteTagSpawned = require("sqlite-tag-spawned"),
   logger = require('./logger')('ask-user');
 
 module.exports = async function (exit = false, cb) {
@@ -24,24 +24,16 @@ module.exports = async function (exit = false, cb) {
     name: "password",
     message: "What password do you want to use?",
   });
-  hash(password, (hash) => {
-    const db = dblite(`./public/data/secure/users.db`);
-    db.query(
-      "CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)",
-      function (err, res) {
-        db.query(
-          "INSERT OR REPLACE INTO users VALUES(?, ?)",
-          [username, hash],
-          function (err, res) {
-            if (err) throw err;
-            logger.info(`User '${username}' added`);
-            db.close();
-            if (exit) process.exit(0);
-            cb();
-          }
-        );
-      }
-    );
+  hash(password, async (hash) => {
+    const { query, transaction, close } = SQLiteTagSpawned("./public/data/secure/users.db");
+    await query`CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)`;
+    const populate = transaction();
+    populate`INSERT OR REPLACE INTO users VALUES(${username}, ${hash})`;
+    await populate.commit();
+    logger.info(`User '${username}' added`);
+    close();
+    if (exit) process.exit(0);
+    cb();
   });
 };
 
