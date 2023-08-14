@@ -18,7 +18,7 @@ const decryptPassword = async (encrypted) => {
     privateKeyJSON,
     {
       name: "RSA-OAEP",
-      hash: "SHA-256"
+      hash: "SHA-512"
     },
     false,
     ["decrypt"]
