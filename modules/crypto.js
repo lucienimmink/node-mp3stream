@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { Crypto } = require("@peculiar/webcrypto");
-const logger = require('./logger')('crypto');
+const logger = require("./logger")("crypto");
 
 const crypto = new Crypto();
 
@@ -8,9 +8,9 @@ const generateKeys = async () => {
   const { privateKey, publicKey } = await crypto.subtle.generateKey(
     {
       name: "RSA-OAEP",
-      hash: "SHA-256", // SHA-1, SHA-256, SHA-384, or SHA-512
+      hash: "SHA-512", // SHA-1, SHA-256, SHA-384, or SHA-512
       publicExponent: new Uint8Array([1, 0, 1]), // 0x03 or 0x010001
-      modulusLength: 2048 // 1024, 2048, or 4096
+      modulusLength: 4096, // 1024, 2048, or 4096
     },
     true,
     ["encrypt", "decrypt"]
@@ -30,5 +30,5 @@ const doKeysExist = () => {
 
 module.exports = {
   doKeysExist,
-  generateKeys
+  generateKeys,
 };

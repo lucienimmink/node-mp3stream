@@ -18,7 +18,7 @@ const encryptPassword = async (password) => {
     publicKeyJSON,
     {
       name: "RSA-OAEP",
-      hash: "SHA-256"
+      hash: "SHA-512"
     },
     false,
     ["encrypt"]
@@ -50,7 +50,7 @@ module.exports = async function(req, res) {
     privateKeyJSON,
     {
       name: "RSA-OAEP",
-      hash: "SHA-256"
+      hash: "SHA-512"
     },
     false,
     ["decrypt"]
