@@ -4,11 +4,16 @@ const logger = require("./logger")("crypto");
 
 const crypto = new Crypto();
 
+const cryptoAlgorithm = {
+  name: "RSA-OAEP",
+  hash: "SHA-512",
+}
+
 const generateKeys = async () => {
   const { privateKey, publicKey } = await crypto.subtle.generateKey(
     {
-      name: "RSA-OAEP",
-      hash: "SHA-512", // SHA-1, SHA-256, SHA-384, or SHA-512
+      name: cryptoAlgorithm.name,
+      hash: cryptoAlgorithm.hash,
       publicExponent: new Uint8Array([1, 0, 1]), // 0x03 or 0x010001
       modulusLength: 4096, // 1024, 2048, or 4096
     },
@@ -31,4 +36,5 @@ const doKeysExist = () => {
 module.exports = {
   doKeysExist,
   generateKeys,
+  cryptoAlgorithm
 };
