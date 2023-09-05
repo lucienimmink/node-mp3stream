@@ -2,6 +2,7 @@ const fs = require("fs");
 const { Crypto } = require("@peculiar/webcrypto");
 const db = require("./../modules/db");
 const generateJWT = require("./../modules/generateJWT");
+const { cryptoAlgorithm } = require("./../modules/crypto");
 
 const crypto = new Crypto();
 
@@ -17,15 +18,15 @@ const encryptPassword = async (password) => {
     "jwk",
     publicKeyJSON,
     {
-      name: "RSA-OAEP",
-      hash: "SHA-256"
+      name: cryptoAlgorithm.name,
+      hash: cryptoAlgorithm.hash
     },
     false,
     ["encrypt"]
   );
   const data = await crypto.subtle.encrypt(
     {
-      name: "RSA-OAEP"
+      name: cryptoAlgorithm.name
     },
     publicKey,
     new TextEncoder().encode(password)
@@ -49,8 +50,8 @@ module.exports = async function(req, res) {
     "jwk",
     privateKeyJSON,
     {
-      name: "RSA-OAEP",
-      hash: "SHA-256"
+      name: cryptoAlgorithm.name,
+      hash: cryptoAlgorithm.hash
     },
     false,
     ["decrypt"]
@@ -58,7 +59,7 @@ module.exports = async function(req, res) {
   try {
     const data = await crypto.subtle.decrypt(
       {
-        name: "RSA-OAEP"
+        name: cryptoAlgorithm.name,
       },
       privateKey,
       payloadBuffer

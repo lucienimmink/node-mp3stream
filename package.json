@@ -1,10 +1,10 @@
 {
   "name": "node-mp3stream",
   "description": "simple mp3 streamer",
-  "version": "5.7.3",
+  "version": "5.8.2",
   "private": true,
   "dependencies": {
-    "@peculiar/webcrypto": "^1.4.0",
+    "@peculiar/webcrypto": "^1.4.3",
     "async": "^3.2.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.0",
@@ -34,12 +34,8 @@
     "version": "npm run docker:build && npm run docker:push",
     "postversion": "git push && git push --tags"
   },
-  "engines": {
-    "node": ">= 20.3.0",
-    "npm": ">= 9.7.1"
-  },
   "volta": {
-    "node": "20.5.1",
-    "npm": "9.8.0"
+    "node": "20.6.0",
+    "npm": "9.8.1"
   }
 }
