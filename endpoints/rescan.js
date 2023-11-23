@@ -13,6 +13,7 @@ var parseProgress = (progress) => {
 
 var poll = (req, force) => {
   var clients = req.app.locals.clients;
+  if (!clients) return;
   if (force) {
     clients.forEach(client => {
       client.res.write(`event: message\n`);
