@@ -18,3 +18,5 @@ README.md
 scanner.logs
 sqlite3.exe
 users.db
+progress.txt
+node-music.json
