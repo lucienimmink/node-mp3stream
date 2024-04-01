@@ -18,7 +18,7 @@
     "express": "^4.18.1",
     "express-http2-workaround": "^1.1.4",
     "fs-walk": "^0.0.2",
-    "http-proxy-middleware": "^2.0.6",
+    "http-proxy-middleware": "^3.0.0",
     "http2e": "git+https://github.com/lucienimmink/node-http2.git",
     "jwt-simple": "^0.5.6",
     "prompts": "^2.4.2",
