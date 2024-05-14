@@ -1,10 +1,10 @@
 {
   "name": "node-mp3stream",
   "description": "simple mp3 streamer",
-  "version": "5.7.3",
+  "version": "5.8.4",
   "private": true,
   "dependencies": {
-    "@peculiar/webcrypto": "^1.4.0",
+    "@peculiar/webcrypto": "^1.4.3",
     "async": "^3.2.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.0",
@@ -17,7 +17,7 @@
     "express": "^4.18.1",
     "express-http2-workaround": "^1.1.4",
     "fs-walk": "^0.0.2",
-    "http-proxy-middleware": "^2.0.6",
+    "http-proxy-middleware": "^3.0.0",
     "http2e": "git+https://github.com/lucienimmink/node-http2.git",
     "jwt-simple": "^0.5.6",
     "prompts": "^2.4.2",
@@ -34,12 +34,8 @@
     "version": "npm run docker:build && npm run docker:push",
     "postversion": "git push && git push --tags"
   },
-  "engines": {
-    "node": ">= 20.3.0",
-    "npm": ">= 9.7.1"
-  },
   "volta": {
-    "node": "20.3.1",
-    "npm": "9.7.2"
+    "node": "20.13.0",
+    "npm": "10.7.0"
   }
 }

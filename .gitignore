@@ -22,6 +22,9 @@ public/*
 .vscode
 .env
 
+progress.txt
+node-music.json
+
 .private-key.json
 .public-key.json
 .well-known

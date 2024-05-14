@@ -2,6 +2,7 @@ const fs = require("fs");
 const { Crypto } = require("@peculiar/webcrypto");
 const jwt = require("jwt-simple");
 const db = require("./db");
+const { cryptoAlgorithm } = require("./crypto");
 
 
 const knownJWTTokens = {};
@@ -17,15 +18,15 @@ const decryptPassword = async (encrypted) => {
     "jwk",
     privateKeyJSON,
     {
-      name: "RSA-OAEP",
-      hash: "SHA-256"
+      name: cryptoAlgorithm.name,
+      hash: cryptoAlgorithm.hash
     },
     false,
     ["decrypt"]
   );
   const data = await crypto.subtle.decrypt(
     {
-      name: "RSA-OAEP"
+      name: cryptoAlgorithm.name
     },
     privateKey,
     payloadBuffer
