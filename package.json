@@ -14,7 +14,7 @@
     "delete": "^1.1.0",
     "dotenv": "^16.0.1",
     "duration-format": "^0.0.2",
-    "express": "^4.18.1",
+    "express": "^4.21.0",
     "express-http2-workaround": "^1.1.4",
     "fs-walk": "^0.0.2",
     "http-proxy-middleware": "^3.0.0",
