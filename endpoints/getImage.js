@@ -1,6 +1,8 @@
-const logger = require("../modules/logger")("getImage");
-const fs = require("fs");
-const url = require("url");
+import loggerModule from "../modules/logger.js";
+import fs from "fs";
+import url from "url";
+
+const logger = loggerModule("getImage");
 
 const returnPath = (path, req, res) => {
   res.writeHead(200, { "Content-Type": "application/json" });
@@ -11,7 +13,7 @@ const returnPath = (path, req, res) => {
   );
 };
 
-module.exports = (req, res) => {
+export default function getImage (req, res) {
   const queryData = url.parse(req.url, true).query;
   const mbid = queryData.mbid;
   if (mbid) {

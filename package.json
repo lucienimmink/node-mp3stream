@@ -3,6 +3,8 @@
   "description": "simple mp3 streamer",
   "version": "5.9.1",
   "private": true,
+  "main": "app.js",
+  "type": "module",
   "dependencies": {
     "@peculiar/webcrypto": "^1.4.3",
     "async": "^3.2.4",

@@ -1,15 +1,16 @@
-const fs = require("fs");
-const { Crypto } = require("@peculiar/webcrypto");
-const logger = require("./logger")("crypto");
+import fs from 'node:fs';
+import { Crypto } from '@peculiar/webcrypto';
+import createLogger from './logger.js';
 
+const logger = createLogger('crypto');
 const crypto = new Crypto();
 
 const cryptoAlgorithm = {
-  name: "RSA-OAEP",
-  hash: "SHA-512",
-}
+  name: 'RSA-OAEP',
+  hash: 'SHA-512',
+};
 
-const generateKeys = async () => {
+export const generateKeys = async () => {
   const { privateKey, publicKey } = await crypto.subtle.generateKey(
     {
       name: cryptoAlgorithm.name,
@@ -18,23 +19,25 @@ const generateKeys = async () => {
       modulusLength: 4096, // 1024, 2048, or 4096
     },
     true,
-    ["encrypt", "decrypt"]
+    ['encrypt', 'decrypt']
   );
-  const publicJWK = await crypto.subtle.exportKey("jwk", publicKey);
-  const privateJWK = await crypto.subtle.exportKey("jwk", privateKey);
-  fs.writeFileSync("./.public-key.json", JSON.stringify(publicJWK));
-  fs.writeFileSync("./.private-key.json", JSON.stringify(privateJWK));
-  logger.info("Generated and stored a new keypair");
+  const publicJWK = await crypto.subtle.exportKey('jwk', publicKey);
+  const privateJWK = await crypto.subtle.exportKey('jwk', privateKey);
+  fs.writeFileSync('./.public-key.json', JSON.stringify(publicJWK));
+  fs.writeFileSync('./.private-key.json', JSON.stringify(privateJWK));
+  logger.info('Generated and stored a new keypair');
 };
 
-const doKeysExist = () => {
+export const doKeysExist = () => {
   return (
-    fs.existsSync("./.public-key.json") && fs.existsSync("./.private-key.json")
+    fs.existsSync('./.public-key.json') && fs.existsSync('./.private-key.json')
   );
 };
 
-module.exports = {
-  doKeysExist,
+export { cryptoAlgorithm };
+
+export default {
   generateKeys,
-  cryptoAlgorithm
+  doKeysExist,
+  cryptoAlgorithm,
 };

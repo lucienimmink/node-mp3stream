@@ -1,11 +1,12 @@
-const winston = require("winston");
-const { format } = require("winston");
+import winston from "winston";
+const { format } = winston;
 const { combine, timestamp, label, printf } = format;
+
 const myFormat = printf(({ level, message, label, timestamp }) => {
   return `${timestamp} [${label}] ${level}: ${message}`;
 });
 
-module.exports = (classLabel) => {
+export default function createLogger(classLabel) {
   return winston.createLogger({
     level: "info",
     format: combine(timestamp(), label({ label: classLabel }), myFormat),
@@ -30,5 +31,4 @@ module.exports = (classLabel) => {
       }),
     ],
   });
-};
-
+}

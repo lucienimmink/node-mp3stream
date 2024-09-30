@@ -1,9 +1,11 @@
-var prompts = require("prompts"),
-  bcrypt = require("bcryptjs"),
-  SQLiteTagSpawned = require("sqlite-tag-spawned"),
-  logger = require('./logger')('ask-user');
+import prompts from "prompts";
+import bcrypt from "bcryptjs";
+import SQLiteTagSpawned from "sqlite-tag-spawned";
+import createLogger from './logger.js';
 
-module.exports = async function (exit = false, cb) {
+const logger = createLogger('ask-user');
+
+export default async function (exit = false, cb) {
   const { proceed } = await prompts({
     type: "confirm",
     name: "proceed",

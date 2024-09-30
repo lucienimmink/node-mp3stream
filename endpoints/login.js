@@ -1,11 +1,13 @@
-var validateJwt = require("./../modules/validateJwt"),
-  logger = require("./../modules/logger")("login");
+import validateJwt from './../modules/validateJwt.js';
+import createLogger from './../modules/logger.js';
 
-module.exports = function (req, res) {
-  logger.info("Starting authentication");
+const logger = createLogger('login');
+
+export default function (req, res) {
+  logger.info('Starting authentication');
   // decode the JWT token
-  if (req.headers["x-cred"]) {
-    validateJwt(req.headers["x-cred"], function (valid) {
+  if (req.headers['x-cred']) {
+    validateJwt(req.headers['x-cred'], function (valid) {
       res.jsonp({
         success: valid,
       });
@@ -14,4 +16,4 @@ module.exports = function (req, res) {
     res.statusCode = 401;
     res.end();
   }
-};
+}

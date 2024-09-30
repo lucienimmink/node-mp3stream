@@ -1,6 +1,6 @@
-var pjson = require("../package.json");
+import pjson from "../package.json" assert { type: "json" };
 
-module.exports = function(req, res) {
+export default function(req, res) {
   res.statusCode = 200;
   res.setHeader("Content-Type", "application/json");
   res.write(
@@ -9,4 +9,4 @@ module.exports = function(req, res) {
     })
   );
   res.end();
-};
+}

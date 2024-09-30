@@ -1,6 +1,6 @@
-var extensions = [".css", ".png", ".gif", ".jpg", ".ico", ".js"];
-// some extra headers to improve security
-module.exports = function(req, res, next) {
+const extensions = [".css", ".png", ".gif", ".jpg", ".ico", ".js"];
+
+export default function(req, res, next) {
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
   if (process.env.USESSL === "true") {
     res.setHeader(
@@ -24,4 +24,4 @@ module.exports = function(req, res, next) {
   }
   // always return
   next();
-};
+}

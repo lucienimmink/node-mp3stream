@@ -1,5 +1,5 @@
-var jwt = require("jwt-simple");
+import jwt from "jwt-simple";
 
-module.exports = function(payload) {
+export default function generateJWT(payload) {
   return jwt.encode(payload, "jsmusicdbnext");
-};
+}

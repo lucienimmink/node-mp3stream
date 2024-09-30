@@ -1,8 +1,10 @@
-const SQLiteTagSpawned = require("sqlite-tag-spawned");
-const bcrypt = require("bcryptjs");
-const logger = require("./logger")("db");
+import SQLiteTagSpawned from "sqlite-tag-spawned";
+import bcrypt from "bcryptjs";
+import createLogger from "./logger.js";
 
-var checkUser = async function (account, passwd, cb, jwt, knownJWTTokens) {
+const logger = createLogger("db");
+
+export default async function checkUser(account, passwd, cb, jwt, knownJWTTokens) {
   if (account && passwd) {
     const { get, close } = SQLiteTagSpawned("./public/data/secure/users.db");
     const { password } =
@@ -38,5 +40,3 @@ const compare = (password, hash, cb) => {
     }
   });
 };
-
-module.exports = checkUser;

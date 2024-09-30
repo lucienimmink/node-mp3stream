@@ -1,9 +1,10 @@
+import createLogger from "../modules/logger.js";
+import fs from "fs";
+import Busboy from "busboy";
 
-const logger = require("../modules/logger")("postImage");
-const fs = require("fs");
-const Busboy = require("busboy");
+const logger = createLogger("postImage");
 
-module.exports = (req, res) => {
+export default (req, res) => {
   const busboy = new Busboy({ headers: req.headers });
   let cachename;
   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
@@ -14,6 +15,6 @@ module.exports = (req, res) => {
     logger.info(`cache file written for ${cachename}`);
     res.writeHead(201, { 'Connection': 'Close', 'Content-Type': 'application/json'});
     res.end(JSON.stringify({ cachename }));
-  })
+  });
   req.pipe(busboy);
 };

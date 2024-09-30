@@ -1,18 +1,19 @@
-var prompts = require('prompts'),
-  fs = require("fs"),
-  config = require("./../config.json"),
-  askUser = require("./askUser");
+import fs from 'node:fs';
+import prompts from 'prompts';
+import config from './../config.json' assert { type: 'json' };
+import askUser from './askUser.js';
 
 const JSONToEnvArray = json => {
   return Object.keys(json).map(key => `${key.toUpperCase()}=${json[key]}\n`);
 };
+
 const setEnv = array => {
   array.forEach(key => {
     process.env[key] = array[key];
   });
 };
 
-module.exports = async function() {
+export default async function() {
   const { port } = await prompts({
     type: 'number',
     name: 'port',
@@ -39,4 +40,4 @@ module.exports = async function() {
   fs.writeFileSync("./.env", envArray.join(""));
 
   await askUser();
-};
+}

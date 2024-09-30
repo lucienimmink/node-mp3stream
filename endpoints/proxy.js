@@ -1,11 +1,13 @@
-const https = require("https");
-const http = require("https");
-const logger = require("../modules/logger")("proxy");
-const validateJwt = require("./../modules/validateJwt");
-const url = require("url");
+import https from "node:https";
+import http from "node:http";
+import { parse } from "node:url";
+import createLogger from "../modules/logger.js";
+import validateJwt from "../modules/validateJwt.js";
 
-module.exports = (req, res) => {
-  const queryData = url.parse(req.url, true).query;
+const logger = createLogger("proxy");
+
+export default (req, res) => {
+  const queryData = parse(req.url, true).query;
   const { remote, jwt } = queryData;
   validateJwt(jwt, function (val) {
     if (val) {
@@ -18,7 +20,7 @@ module.exports = (req, res) => {
             data += chunk;
           });
           resp.on("end", () => {
-            res.writeHead(200, { 'content-type': resp.headers["content-type"] })
+            res.writeHead(200, { 'content-type': resp.headers["content-type"] });
             res.write(data);
             res.end();
           });

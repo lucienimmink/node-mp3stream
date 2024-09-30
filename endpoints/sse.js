@@ -1,6 +1,8 @@
-var logger = require("./../modules/logger")("sse");
+import createLogger from './../modules/logger.js';
 
-module.exports = function (req, res, next) {
+const logger = createLogger("sse");
+
+export default function (req, res) {
     req.app.locals.clients = req.app.locals.clients || [];
 
     res.header('Content-Type', 'text/event-stream');

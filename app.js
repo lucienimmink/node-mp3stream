@@ -1,31 +1,34 @@
-require("dotenv").config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-var express = require("express"),
-  fs = require("fs"),
-  compression = require("compression"),
-  http2 = require("http2e"),
-  expressHTTP2Workaround = require("express-http2-workaround"),
-  bodyParser = require("body-parser"),
-  cors = require("./modules/cors"),
-  cache = require("./modules/cache"),
-  security = require("./modules/security"),
-  crypto = require("./modules/crypto"),
-  rescan = require("./endpoints/rescan"),
-  progress = require("./endpoints/progress"),
-  login = require("./endpoints/login"),
-  listen = require("./endpoints/listen"),
-  version = require("./endpoints/version"),
-  publicKey = require("./endpoints/public-key"),
-  authenticate = require("./endpoints/authenticate"),
-  getImage = require('./endpoints/getImage'),
-  postImage = require('./endpoints/postImage'),
-  proxy = require('./endpoints/proxy'),
-  sse = require('./endpoints/sse'),
-  ask = require("./modules/ask"),
-  askUser = require("./modules/askUser"),
-  package = require("./package.json"),
-  app = express(),
-  logger = require("./modules/logger")("app");
+import express from 'express';
+import fs from 'fs';
+import compression from 'compression';
+import http2 from 'http2e';
+import expressHTTP2Workaround from 'express-http2-workaround';
+import bodyParser from 'body-parser';
+import cors from './modules/cors.js';
+import cache from './modules/cache.js';
+import security from './modules/security.js';
+import crypto from './modules/crypto.js';
+import rescan from './endpoints/rescan.js';
+import progress from './endpoints/progress.js';
+import login from './endpoints/login.js';
+import listen from './endpoints/listen.js';
+import version from './endpoints/version.js';
+import publicKey from './endpoints/public-key.js';
+import authenticate from './endpoints/authenticate.js';
+import getImage from './endpoints/getImage.js';
+import postImage from './endpoints/postImage.js';
+import proxy from './endpoints/proxy.js';
+import sse from './endpoints/sse.js';
+import ask from './modules/ask.js';
+import askUser from './modules/askUser.js';
+import pkg from './package.json' assert { type: 'json' };
+import createLogger from './modules/logger.js';
+
+const app = express();
+const logger = createLogger("app");
 
 if (!crypto.doKeysExist()) {
   crypto.generateKeys();
@@ -39,19 +42,19 @@ app.use(compression({
     if (res.getHeader('Content-Type')?.includes('text/event-stream')) {
       return false;
     }
-    return compression.filter(req, res)
+    return compression.filter(req, res);
   }
 }));
 app.use(cors);
 app.use(security);
 app.use(cache);
 app.use('/data', (req, res, next) => {
-  var result = req.url.match(/^\/secure\/.+$/)
+  var result = req.url.match(/^\/secure\/.+$/);
   if (result) {
-    return res.status(403).end('403 Forbidden')
+    return res.status(403).end('403 Forbidden');
   }
-  next()
-})
+  next();
+});
 app.use(express.static("./public"));
 // app.use([/^\/public\/data\/secure($|\/)/, '/public'], express.static('./public'));
 app.use(bodyParser.json());
@@ -84,18 +87,17 @@ const startup = () => {
     var httpsServer = http2.createServer(credentials, app);
     httpsServer.listen(process.env.PORT);
     logger.info(
-      `node mp3stream ${package.version} is set-up and running in http/2 mode`
+      `node mp3stream ${pkg.version} is set-up and running in http/2 mode`
     );
   } else {
     const server = app.listen(process.env.PORT);
     logger.info(
-      `node mp3stream ${package.version} is set-up and running in http mode`
+      `node mp3stream ${pkg.version} is set-up and running in http mode`
     );
   }
 };
 
 // if no db = clean set-up = create clean db
-// afterwards start 'the rest'
 var addUserMode = process.argv[2] === "adduser";
 if (addUserMode) {
   askUser(true);

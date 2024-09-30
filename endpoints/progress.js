@@ -1,18 +1,19 @@
-var validateJwt = require("./../modules/validateJwt"),
-  fs = require("fs"),
-  logger = require("./../modules/logger")("progress");
+import fs from "node:fs";
+import validateJwt from "./../modules/validateJwt.js";
+import createLogger from "./../modules/logger.js";
 
-var progressFile = "./public/data/progress.txt";
+const logger = createLogger("progress");
+const progressFile = "./public/data/progress.txt";
 
-module.exports = function (req, res) {
-  var jwt = req.query.jwt;
+export default function (req, res) {
+  const jwt = req.query.jwt;
   validateJwt(jwt, function (val) {
     if (val) {
       // progress should be written to the output folder as a file progress.txt containing the actual percentage
-      var hasProgressFile = fs.existsSync(progressFile);
+      const hasProgressFile = fs.existsSync(progressFile);
       res.setHeader("Content-Type", "application/json");
       if (hasProgressFile) {
-        var progress = fs.readFileSync(progressFile, "utf8");
+        const progress = fs.readFileSync(progressFile, "utf8");
         res.statusCode = 200;
         res.write(
           JSON.stringify({
@@ -35,4 +36,4 @@ module.exports = function (req, res) {
       res.end();
     }
   });
-};
+}

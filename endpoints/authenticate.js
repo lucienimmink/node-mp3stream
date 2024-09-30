@@ -1,8 +1,8 @@
-const fs = require("fs");
-const { Crypto } = require("@peculiar/webcrypto");
-const db = require("./../modules/db");
-const generateJWT = require("./../modules/generateJWT");
-const { cryptoAlgorithm } = require("./../modules/crypto");
+import fs from 'node:fs';
+import { Crypto } from '@peculiar/webcrypto';
+import db from './../modules/db.js';
+import generateJWT from './../modules/generateJWT.js';
+import { cryptoAlgorithm } from './../modules/crypto.js';
 
 const crypto = new Crypto();
 
@@ -12,17 +12,17 @@ const ab2str = function ab2str(buf) {
 
 const encryptPassword = async (password) => {
   const publicKeyJSON = JSON.parse(
-    fs.readFileSync("./.public-key.json", "utf8")
+    fs.readFileSync('./.public-key.json', 'utf8')
   );
   const publicKey = await crypto.subtle.importKey(
-    "jwk",
+    'jwk',
     publicKeyJSON,
     {
       name: cryptoAlgorithm.name,
       hash: cryptoAlgorithm.hash
     },
     false,
-    ["encrypt"]
+    ['encrypt']
   );
   const data = await crypto.subtle.encrypt(
     {
@@ -32,29 +32,29 @@ const encryptPassword = async (password) => {
     new TextEncoder().encode(password)
   );
   const buffer = Buffer.from(data);
-  return buffer.toString("base64");
+  return buffer.toString('base64');
 };
 
-module.exports = async function(req, res) {
+export default async function(req, res) {
   const { encryptedPayload } = req.body;
   if (!encryptedPayload) {
     req.statusCode = 401;
     res.end();
     return;
   }
-  const payloadBuffer = Buffer.from(encryptedPayload, "base64");
+  const payloadBuffer = Buffer.from(encryptedPayload, 'base64');
   const privateKeyJSON = JSON.parse(
-    fs.readFileSync("./.private-key.json", "utf8")
+    fs.readFileSync('./.private-key.json', 'utf8')
   );
   const privateKey = await crypto.subtle.importKey(
-    "jwk",
+    'jwk',
     privateKeyJSON,
     {
       name: cryptoAlgorithm.name,
       hash: cryptoAlgorithm.hash
     },
     false,
-    ["decrypt"]
+    ['decrypt']
   );
   try {
     const data = await crypto.subtle.decrypt(
@@ -78,7 +78,7 @@ module.exports = async function(req, res) {
         encryptedPassword
       });
       res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
+      res.setHeader('Content-Type', 'application/json');
       res.write(
         JSON.stringify({
           jwt
@@ -92,4 +92,4 @@ module.exports = async function(req, res) {
     res.end();
     return;
   }
-};
+}

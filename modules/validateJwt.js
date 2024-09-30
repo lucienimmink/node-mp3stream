@@ -1,32 +1,31 @@
-const fs = require("fs");
-const { Crypto } = require("@peculiar/webcrypto");
-const jwt = require("jwt-simple");
-const db = require("./db");
-const { cryptoAlgorithm } = require("./crypto");
-
+import fs from 'node:fs/promises';
+import { Crypto } from '@peculiar/webcrypto';
+import jwt from 'jwt-simple';
+import db from './db.js';
+import { cryptoAlgorithm } from './crypto.js';
 
 const knownJWTTokens = {};
 
 const crypto = new Crypto();
 
 const decryptPassword = async (encrypted) => {
-  const payloadBuffer = Buffer.from(encrypted, "base64");
+  const payloadBuffer = Buffer.from(encrypted, 'base64');
   const privateKeyJSON = JSON.parse(
-    fs.readFileSync("./.private-key.json", "utf8")
+    await fs.readFile('./.private-key.json', 'utf8')
   );
   const privateKey = await crypto.subtle.importKey(
-    "jwk",
+    'jwk',
     privateKeyJSON,
     {
       name: cryptoAlgorithm.name,
-      hash: cryptoAlgorithm.hash
+      hash: cryptoAlgorithm.hash,
     },
     false,
-    ["decrypt"]
+    ['decrypt']
   );
   const data = await crypto.subtle.decrypt(
     {
-      name: cryptoAlgorithm.name
+      name: cryptoAlgorithm.name,
     },
     privateKey,
     payloadBuffer
@@ -39,8 +38,8 @@ const parseToken = (token) => {
     return false;
   }
   try {
-    let decoded = jwt.decode(token, "jsmusicdbnext");
-    if (typeof decoded === "string") {
+    let decoded = jwt.decode(token, 'jsmusicdbnext');
+    if (typeof decoded === 'string') {
       return JSON.parse(decoded);
     }
     return decoded;
@@ -49,7 +48,7 @@ const parseToken = (token) => {
   }
 };
 
-module.exports = async function(jwt, cb) {
+export default async function validateJwt(jwt, cb) {
   if (!knownJWTTokens[jwt]) {
     const decoded = parseToken(jwt);
     if (!decoded) {
@@ -66,4 +65,4 @@ module.exports = async function(jwt, cb) {
   } else {
     cb(true);
   }
-};
+}

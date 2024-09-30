@@ -1,64 +1,63 @@
-var validateJwt = require("./../modules/validateJwt"),
-  fs = require("fs"),
-  logger = require("./../modules/logger")("rescan");
+import { existsSync, readFileSync } from 'node:fs';
+import { exec } from 'node:child_process';
+import validateJwt from './../modules/validateJwt.js';
+import createLogger from './../modules/logger.js';
 
-var progressFile = "./public/data/progress.txt";
+const logger = createLogger('rescan');
+const progressFile = './public/data/progress.txt';
 
-var parseProgress = (progress) => {
+const parseProgress = (progress) => {
   return JSON.stringify({
     progress,
-    status: progress == "100" ? "ready" : "scanning",
-  })
+    status: progress == '100' ? 'ready' : 'scanning',
+  });
 };
 
-var poll = (req, force) => {
-  var clients = req.app.locals.clients;
+const poll = (req, force) => {
+  const clients = req.app.locals.clients;
   if (!clients) return;
   if (force) {
     clients.forEach(client => {
       client.res.write(`event: message\n`);
-      client.res.write(`data: ${parseProgress()}\n\n`)
+      client.res.write(`data: ${parseProgress()}\n\n`);
     });
     setTimeout(() => {
       poll(req, false);
     }, 1000);
   } else {
     // read progress file
-    var hasProgressFile = fs.existsSync(progressFile);
+    const hasProgressFile = existsSync(progressFile);
+    let progress = '';
     if (hasProgressFile) {
-      var progress = fs.readFileSync(progressFile, "utf8");
+      progress = readFileSync(progressFile, 'utf8');
     }
     // tell clients the progress is updated
     clients.forEach(client => {
       client.res.write(`event: message\n`);
-      client.res.write(`data: ${parseProgress(progress)}\n\n`)
+      client.res.write(`data: ${parseProgress(progress)}\n\n`);
     });
     // if progress is not 100, poll again
-    if (progress != "100") {
+    if (progress != '100') {
       setTimeout(() => {
         poll(req, false);
       }, 1000);
     }
   }
-}
+};
 
 function initiateScan(req) {
-  var exec = require("child_process").exec;
-  exec("python --version", function (error, stdout, stderr) {
-    var out = (stdout = stderr);
-    var hasPython = false;
-    if (out.indexOf("2.") !== 0) {
-      logger.info("python is installed");
+  exec('python --version', function (error, stdout, stderr) {
+    const out = stdout || stderr;
+    let hasPython = false;
+    if (out.indexOf('2.') !== 0) {
+      logger.info('python is installed');
       hasPython = true;
     }
     if (hasPython) {
       // spawn python process
-      var outdir = process.env.MUSICDB;
+      const outdir = process.env.MUSICDB;
       exec(
-        "python ./node_modules/scanner.py/scanner.py " +
-        process.env.MUSICPATH +
-        " --destpath " +
-        outdir,
+        `python ./node_modules/scanner.py/scanner.py ${process.env.MUSICPATH} --destpath ${outdir}`,
         function (error, stdout, stderr) {
           logger.info(stdout);
         }
@@ -66,23 +65,23 @@ function initiateScan(req) {
       poll(req, true);
     } else {
       logger.fatal(
-        "Python is needed to scan all files on the system; cannot continue"
+        'Python is needed to scan all files on the system; cannot continue'
       );
     }
   });
 }
 
-module.exports = function (req, res) {
-  var jwt = req.query.jwt;
+export default function (req, res) {
+  const jwt = req.query.jwt;
   validateJwt(jwt, function (val) {
     if (val) {
       initiateScan(req);
       res.statusCode = 204;
       res.end();
     } else {
-      logger.warn("User not authorized");
+      logger.warn('User not authorized');
       res.statusCode = 401;
       res.end();
     }
   });
-};
+}
