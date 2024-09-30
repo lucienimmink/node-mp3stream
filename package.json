@@ -1,7 +1,7 @@
 {
   "name": "node-mp3stream",
   "description": "simple mp3 streamer",
-  "version": "5.9.1",
+  "version": "5.9.2",
   "private": true,
   "main": "app.js",
   "type": "module",
