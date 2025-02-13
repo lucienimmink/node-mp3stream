@@ -8,7 +8,7 @@
   "dependencies": {
     "@peculiar/webcrypto": "^1.4.3",
     "async": "^3.2.4",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.0",
     "body-parser": "^1.20.0",
     "busboy": "^1.6.0",
     "chokidar": "^4.0.0",
