@@ -1,4 +1,4 @@
-import pjson from "../package.json" assert { type: "json" };
+import pjson from "../package.json" with { type: "json" };
 
 export default function(req, res) {
   res.statusCode = 200;

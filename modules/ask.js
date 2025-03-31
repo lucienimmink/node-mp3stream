@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import prompts from 'prompts';
-import config from './../config.json' assert { type: 'json' };
+import config from './../config.json' with { type: 'json' };
 import askUser from './askUser.js';
 
 const JSONToEnvArray = json => {

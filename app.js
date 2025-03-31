@@ -24,7 +24,7 @@ import proxy from './endpoints/proxy.js';
 import sse from './endpoints/sse.js';
 import ask from './modules/ask.js';
 import askUser from './modules/askUser.js';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 import createLogger from './modules/logger.js';
 
 const app = express();
