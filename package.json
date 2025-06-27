@@ -14,7 +14,7 @@
     "chokidar": "^4.0.0",
     "compression": "^1.7.4",
     "delete": "^1.1.0",
-    "dotenv": "^16.0.1",
+    "dotenv": "^17.0.0",
     "duration-format": "^0.0.2",
     "express": "^4.21.2",
     "express-http2-workaround": "^1.1.4",
