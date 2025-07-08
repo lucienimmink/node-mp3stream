@@ -1,11 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import fs from 'node:fs';
+import http from 'node:http';
 import express from 'express';
-import fs from 'fs';
 import compression from 'compression';
-import http2 from 'http2e';
-import expressHTTP2Workaround from 'express-http2-workaround';
 import bodyParser from 'body-parser';
 import cors from './modules/cors.js';
 import cache from './modules/cache.js';
@@ -35,7 +34,6 @@ if (!crypto.doKeysExist()) {
 }
 
 // set-up express
-app.use(expressHTTP2Workaround({ express: express, http2: http2 }));
 app.use(compression({
   filter: function (req, res) {
     // don't compress an eventstream (content-type: text/event-stream)
@@ -84,7 +82,7 @@ const startup = () => {
       key: privateKey,
       cert: certificate,
     };
-    var httpsServer = http2.createServer(credentials, app);
+    var httpsServer = http.createServer(credentials, app);
     httpsServer.listen(process.env.PORT);
     logger.info(
       `node mp3stream ${pkg.version} is set-up and running in http/2 mode`
