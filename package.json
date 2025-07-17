@@ -12,7 +12,7 @@
     "body-parser": "^2.0.0",
     "busboy": "^1.6.0",
     "chokidar": "^4.0.0",
-    "compression": "^1.7.4",
+    "compression": "^1.8.1",
     "delete": "^1.1.0",
     "dotenv": "^17.0.0",
     "duration-format": "^0.0.2",
