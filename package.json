@@ -35,7 +35,7 @@
     "postversion": "git push && git push --tags"
   },
   "volta": {
-    "node": "24.8.0",
+    "node": "24.9.0",
     "npm": "11.6.1"
   }
 }
