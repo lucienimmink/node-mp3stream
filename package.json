@@ -9,7 +9,7 @@
     "@peculiar/webcrypto": "^1.4.3",
     "async": "^3.2.4",
     "bcryptjs": "^3.0.0",
-    "body-parser": "^2.0.0",
+    "body-parser": "^2.2.1",
     "busboy": "^1.6.0",
     "chokidar": "^4.0.0",
     "compression": "^1.8.1",
