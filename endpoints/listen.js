@@ -25,6 +25,14 @@ export default function (req, res) {
             mime = "audio/flac";
           } else if (path.indexOf(".m4a") !== -1) {
             mime = "audio/mp4a-latm";
+          } else if (path.indexOf(".wav") !== -1) {
+            mime = "audio/wav";
+          } else if (path.indexOf(".ogg") !== -1) {
+            mime = "audio/ogg";
+          } else if (path.indexOf(".opus") !== -1) {
+            mime = "audio/opus";
+          } else {
+            logger.warn("unknown mime for " + path);
           }
           if (req.headers.range) {
             logger.debug("partial streaming " + path);
