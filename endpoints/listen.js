@@ -4,6 +4,15 @@ import createLogger from "./../modules/logger.js";
 
 const logger = createLogger("listen");
 
+const mimeTypes = {
+  '.mp3': 'audio/mpeg',
+  '.flac': 'audio/flac',
+  '.m4a': 'audio/mp4a-latm',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+  '.opus': 'audio/opus'
+};
+
 export default function (req, res) {
   if (!process.env.MUSICPATH || process.env.MUSICPATH === "") {
     logger.fatal("Configuration is not complete");
@@ -19,19 +28,10 @@ export default function (req, res) {
     if (val) {
       fs.exists(path, function (exists) {
         if (exists) {
-          let mime = "audio/mpeg";
-
-          if (path.indexOf(".flac") !== -1) {
-            mime = "audio/flac";
-          } else if (path.indexOf(".m4a") !== -1) {
-            mime = "audio/mp4a-latm";
-          } else if (path.indexOf(".wav") !== -1) {
-            mime = "audio/wav";
-          } else if (path.indexOf(".ogg") !== -1) {
-            mime = "audio/ogg";
-          } else if (path.indexOf(".opus") !== -1) {
-            mime = "audio/opus";
-          } else {
+          const ext = path.extname(req.query.path).toLowerCase();
+          let mime = mimeTypes[ext];
+          if (!mime) {
+            mime = 'audio/mpeg';
             logger.warn("unknown mime for " + path);
           }
           if (req.headers.range) {
