@@ -18,7 +18,7 @@
     "duration-format": "^0.0.2",
     "express": "^5.1.0",
     "fs-walk": "^0.0.2",
-    "http-proxy-middleware": "^3.0.5",
+    "http-proxy-middleware": "^4.0.0",
     "jwt-simple": "^0.5.6",
     "prompts": "^2.4.2",
     "scanner.py": "^2.3.0",
