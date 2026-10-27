@@ -19,7 +19,7 @@
     "express": "^5.1.0",
     "fs-walk": "^0.0.2",
     "http-proxy-middleware": "^4.0.0",
-    "jwt-simple": "^0.5.6",
+    "jwt-simple": "^0.6.0",
     "prompts": "^2.4.2",
     "scanner.py": "^2.3.0",
     "sqlite-tag-spawned": "^0.7.1",
