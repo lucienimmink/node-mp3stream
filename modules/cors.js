@@ -1,4 +1,4 @@
-const defaultOrigins = ["https://www.jsmusicdb.com", "https://jsmusicdb.com"];
+const defaultOrigins = ["https://www.jsmusicdb.com", "https://jsmusicdb.com", "http://localhost:5173"];
 
 export default async function (c, next) {
   const allowedOrigins = new Set(

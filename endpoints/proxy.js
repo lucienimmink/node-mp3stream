@@ -7,7 +7,8 @@ import validateJwt from "../modules/validateJwt.js";
 
 const logger = createLogger("proxy");
 const maxResponseSize = 5 * 1024 * 1024;
-const blockedAddresses = new BlockList();
+const blockedIPv4Addresses = new BlockList();
+const blockedIPv6Addresses = new BlockList();
 const globalIPv6Addresses = new BlockList();
 
 [
@@ -27,7 +28,7 @@ const globalIPv6Addresses = new BlockList();
   ["224.0.0.0", 4],
   ["240.0.0.0", 4],
 ].forEach(([address, prefix]) => {
-  blockedAddresses.addSubnet(address, prefix, "ipv4");
+  blockedIPv4Addresses.addSubnet(address, prefix, "ipv4");
 });
 
 [
@@ -44,18 +45,18 @@ const globalIPv6Addresses = new BlockList();
   ["fe80::", 10],
   ["ff00::", 8],
 ].forEach(([address, prefix]) => {
-  blockedAddresses.addSubnet(address, prefix, "ipv6");
+  blockedIPv6Addresses.addSubnet(address, prefix, "ipv6");
 });
 globalIPv6Addresses.addSubnet("2000::", 3, "ipv6");
 
 const isPublicAddress = ({ address, family }) => {
   if (family === 4) {
-    return !blockedAddresses.check(address, "ipv4");
+    return !blockedIPv4Addresses.check(address, "ipv4");
   }
   return (
     family === 6 &&
     globalIPv6Addresses.check(address, "ipv6") &&
-    !blockedAddresses.check(address, "ipv6")
+    !blockedIPv6Addresses.check(address, "ipv6")
   );
 };
 
@@ -65,7 +66,7 @@ const resolvePublicHost = async (hostname) => {
     ? [{ address: hostname, family: ipVersion }]
     : await lookup(hostname, { all: true, verbatim: true });
   if (!addresses.length || addresses.some((address) => !isPublicAddress(address))) {
-    throw Object.assign(new Error("Proxy target resolves to a restricted address"), {
+    throw Object.assign(new Error(`Proxy target resolves to a restricted address: ${hostname}`), {
       statusCode: 400,
     });
   }
@@ -129,20 +130,21 @@ const fetchImage = async (remote) => {
     });
   }
 
-  const contentType = response.headers["content-type"]?.split(";")[0].trim();
+  const contentType = response.headers["content-type"]?.split(";")[0].trim().toLowerCase();
   if (
     !contentType ||
-    !/^image\/(jpeg|png|gif|webp|avif|bmp|tiff|x-icon)$/.test(contentType)
+    (!/^image\/(jpeg|png|gif|webp|avif|bmp|tiff|x-icon)$/.test(contentType) &&
+      contentType !== "application/json")
   ) {
     response.resume();
-    throw Object.assign(new Error("Remote response is not a supported image"), {
+    throw Object.assign(new Error("Remote response has an unsupported content type"), {
       statusCode: 415,
     });
   }
   const contentLength = Number(response.headers["content-length"]);
   if (Number.isFinite(contentLength) && contentLength > maxResponseSize) {
     response.destroy();
-    throw Object.assign(new Error("Remote image exceeds size limit"), {
+    throw Object.assign(new Error("Remote response exceeds size limit"), {
       statusCode: 413,
     });
   }
@@ -153,7 +155,7 @@ const fetchImage = async (remote) => {
     size += chunk.length;
     if (size > maxResponseSize) {
       response.destroy();
-      throw Object.assign(new Error("Remote image exceeds size limit"), {
+      throw Object.assign(new Error("Remote response exceeds size limit"), {
         statusCode: 413,
       });
     }

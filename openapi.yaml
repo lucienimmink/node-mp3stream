@@ -322,25 +322,27 @@ paths:
     get:
       tags: [Artwork]
       operationId: proxyImage
-      summary: Fetch a public image URL
+      summary: Fetch a public image URL or JSON response
       description: |
-        Fetches an image from a public host over HTTP or HTTPS on its default
-        port. Redirects, non-public IP addresses, non-image responses, and
-        responses larger than 5 MiB are rejected.
+        Fetches an image or JSON response from a public host over HTTP or HTTPS
+        on its default port. Redirects, non-public IP addresses, unsupported
+        content types, and responses larger than 5 MiB are rejected.
       security:
         - QueryJwt: []
       parameters:
         - name: remote
           in: query
           required: true
-          description: Public HTTP(S) image URL.
+          description: Public HTTP(S) URL returning a supported image or JSON.
           schema:
             type: string
             format: uri
       responses:
         "200":
-          description: Retrieved image.
+          description: Retrieved image or JSON response.
           content:
+            application/json:
+              schema: {}
             image/jpeg:
               schema:
                 type: string

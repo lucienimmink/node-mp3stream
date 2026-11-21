@@ -39,7 +39,9 @@ const streamFile = (filePath, c, range) => {
   const streamFileWithStatus = (status, options, headers) => {
     const stream = fs.createReadStream(filePath, options);
     stream.on("error", (error) => {
-      logger.error(`Unable to stream ${filePath}: ${error.message}`);
+      if (error.message !== "The operation was aborted") {
+        logger.error(`Unable to stream ${filePath}: ${error.message}`);
+      }
     });
     return c.body(Readable.toWeb(stream), status, headers);
   };
