@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { exec } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import validateJwt from './../modules/validateJwt.js';
 import createLogger from './../modules/logger.js';
+import { hasSseClients, publishSse } from './../modules/sseClients.js';
 
 const logger = createLogger('rescan');
 const progressFile = './public/data/progress.txt';
@@ -13,16 +14,12 @@ const parseProgress = (progress) => {
   });
 };
 
-const poll = (req, force) => {
-  const clients = req.app.locals.clients;
-  if (!clients) return;
+const poll = (force) => {
+  if (!hasSseClients()) return;
   if (force) {
-    clients.forEach(client => {
-      client.res.write(`event: message\n`);
-      client.res.write(`data: ${parseProgress()}\n\n`);
-    });
+    void publishSse(parseProgress());
     setTimeout(() => {
-      poll(req, false);
+      poll(false);
     }, 1000);
   } else {
     // read progress file
@@ -31,57 +28,61 @@ const poll = (req, force) => {
     if (hasProgressFile) {
       progress = readFileSync(progressFile, 'utf8');
     }
-    // tell clients the progress is updated
-    clients.forEach(client => {
-      client.res.write(`event: message\n`);
-      client.res.write(`data: ${parseProgress(progress)}\n\n`);
-    });
+    void publishSse(parseProgress(progress));
     // if progress is not 100, poll again
     if (progress != '100') {
       setTimeout(() => {
-        poll(req, false);
+        poll(false);
       }, 1000);
     }
   }
 };
 
-function initiateScan(req) {
-  exec('python --version', function (error, stdout, stderr) {
-    const out = stdout || stderr;
-    let hasPython = false;
-    if (out.indexOf('2.') !== 0) {
-      logger.info('python is installed');
-      hasPython = true;
+function initiateScan() {
+  execFile('python3', ['--version'], function (error, stdout, stderr) {
+    if (error) {
+      logger.error(`Python3 is needed to scan files: ${error.message}`);
+      return;
     }
-    if (hasPython) {
-      // spawn python process
+    const out = stdout || stderr;
+    if (/^Python 3(?:\.|$)/.test(out.trim())) {
+      logger.info('python3 is installed');
       const outdir = process.env.MUSICDB;
-      exec(
-        `python ./node_modules/scanner.py/scanner.py ${process.env.MUSICPATH} --destpath ${outdir}`,
-        function (error, stdout, stderr) {
-          logger.info(stdout);
+      if (!process.env.MUSICPATH || !outdir) {
+        logger.error('Cannot scan without MUSICPATH and MUSICDB configured');
+        return;
+      }
+      execFile(
+        'python3',
+        [
+          './node_modules/scanner.py/scanner.py',
+          process.env.MUSICPATH,
+          '--destpath',
+          outdir,
+        ],
+        function (scanError, scanStdout, scanStderr) {
+          if (scanError) {
+            logger.error(`Music scan failed: ${scanError.message}`);
+            if (scanStderr) logger.error(scanStderr);
+            return;
+          }
+          logger.info(scanStdout);
         }
       );
-      poll(req, true);
+      poll(true);
     } else {
-      logger.fatal(
-        'Python is needed to scan all files on the system; cannot continue'
+      logger.error(
+        'Python issued an unexpected version, version discovered: ' + out
       );
     }
   });
 }
 
-export default function (req, res) {
-  const jwt = req.query.jwt;
-  validateJwt(jwt, function (val) {
-    if (val) {
-      initiateScan(req);
-      res.statusCode = 204;
-      res.end();
-    } else {
-      logger.warn('User not authorized');
-      res.statusCode = 401;
-      res.end();
-    }
-  });
+export default async function rescan(c) {
+  if (!(await validateJwt(c.req.query("jwt")))) {
+    logger.warn('User not authorized');
+    return c.body(null, 401);
+  }
+  initiateScan();
+  return c.body(null, 204);
 }

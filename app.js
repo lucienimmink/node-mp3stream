@@ -1,117 +1,127 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
-import fs from 'node:fs';
-import http from 'node:http';
-import express from 'express';
-import compression from 'compression';
-import bodyParser from 'body-parser';
-import cors from './modules/cors.js';
-import cache from './modules/cache.js';
-import security from './modules/security.js';
-import crypto from './modules/crypto.js';
-import rescan from './endpoints/rescan.js';
-import progress from './endpoints/progress.js';
-import login from './endpoints/login.js';
-import listen from './endpoints/listen.js';
-import version from './endpoints/version.js';
-import publicKey from './endpoints/public-key.js';
-import authenticate from './endpoints/authenticate.js';
-import getImage from './endpoints/getImage.js';
-import postImage from './endpoints/postImage.js';
-import proxy from './endpoints/proxy.js';
-import sse from './endpoints/sse.js';
-import ask from './modules/ask.js';
-import askUser from './modules/askUser.js';
-import pkg from './package.json' with { type: 'json' };
-import createLogger from './modules/logger.js';
+import fs from "node:fs";
+import https from "node:https";
+import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
+import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
+import { compress } from "hono/compress";
+import authenticate from "./endpoints/authenticate.js";
+import getImage from "./endpoints/getImage.js";
+import listen from "./endpoints/listen.js";
+import login from "./endpoints/login.js";
+import postImage from "./endpoints/postImage.js";
+import progress from "./endpoints/progress.js";
+import proxy from "./endpoints/proxy.js";
+import publicKey from "./endpoints/public-key.js";
+import rescan from "./endpoints/rescan.js";
+import sse from "./endpoints/sse.js";
+import version from "./endpoints/version.js";
+import ask from "./modules/ask.js";
+import askUser from "./modules/askUser.js";
+import cache from "./modules/cache.js";
+import cors from "./modules/cors.js";
+import crypto from "./modules/crypto.js";
+import createLogger from "./modules/logger.js";
+import getJwtSecret from "./modules/jwtSecret.js";
+import security from "./modules/security.js";
+import pkg from "./package.json" with { type: "json" };
 
-const app = express();
+const app = new Hono();
 const logger = createLogger("app");
 
 if (!crypto.doKeysExist()) {
   crypto.generateKeys();
 }
 
-// set-up express
-app.use(compression({
-  filter: function (req, res) {
-    // don't compress an eventstream (content-type: text/event-stream)
-    if (res.getHeader('Content-Type')?.includes('text/event-stream')) {
-      return false;
-    }
-    return compression.filter(req, res);
+app.use("*", compress());
+app.use("*", cors);
+app.use("*", security);
+app.use("*", cache);
+app.use("*", async (c, next) => {
+  if (/^\/data\/secure(?:\/|$)/.test(c.req.path)) {
+    return c.text("403 Forbidden", 403);
   }
-}));
-app.use(cors);
-app.use(security);
-app.use(cache);
-app.use('/data', (req, res, next) => {
-  var result = req.url.match(/^\/secure\/.+$/);
-  if (result) {
-    return res.status(403).end('403 Forbidden');
-  }
-  next();
+  await next();
 });
-app.use(express.static("./public"));
-// app.use([/^\/public\/data\/secure($|\/)/, '/public'], express.static('./public'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use("*", serveStatic({ root: "./public" }));
 
-app.disable("x-powered-by");
+app.post(
+  "/authenticate",
+  bodyLimit({
+    maxSize: 100 * 1024,
+    onError: (c) => c.body(null, 413),
+  }),
+  authenticate
+);
+app.post("/login", login);
+app.get("/listen", listen);
+app.get("/rescan", rescan);
+app.get("/progress", progress);
+app.get("/version", version);
+app.get("/public-key", publicKey);
+app.get("/image", getImage);
+app.post("/image", postImage);
+app.get("/proxy", proxy);
+app.get("/stream", sse);
+
+app.notFound((c) => c.text("Not Found", 404));
+app.onError((error, c) => {
+  logger.error(`Unhandled application error: ${error.message}`);
+  return c.text("Internal Server Error", 500);
+});
 
 const startup = () => {
-  // set-up endpoints
-  app.get("/listen", listen);
-  app.post("/login", login);
-  app.get("/rescan", rescan);
-  app.get("/progress", progress);
-  app.get("/version", version);
-  app.get("/public-key", publicKey);
-  app.post("/authenticate", authenticate);
-  app.get("/image", getImage);
-  app.post("/image", postImage);
-  app.get("/proxy", proxy);
-  app.get("/stream", sse);
+  getJwtSecret();
+  const port = Number(process.env.PORT || 16882);
 
-  // start-up express
   if (process.env.USESSL === "true") {
-    var privateKey = fs.readFileSync(process.env.SSLKEY, "utf8");
-    var certificate = fs.readFileSync(process.env.SSLCERT, "utf8");
-    var credentials = {
-      key: privateKey,
-      cert: certificate,
+    const serverOptions = {
+      key: fs.readFileSync(process.env.SSLKEY, "utf8"),
+      cert: fs.readFileSync(process.env.SSLCERT, "utf8"),
     };
-    var httpsServer = http.createServer(credentials, app);
-    httpsServer.listen(process.env.PORT);
-    logger.info(
-      `node mp3stream ${pkg.version} is set-up and running in http/2 mode`
+    serve(
+      {
+        fetch: app.fetch,
+        port,
+        createServer: https.createServer,
+        serverOptions,
+      },
+      (address) => {
+        logger.info(
+          `node mp3stream ${pkg.version} is running with HTTPS on port ${address.port}`
+        );
+      }
     );
-  } else {
-    const server = app.listen(process.env.PORT);
-    logger.info(
-      `node mp3stream ${pkg.version} is set-up and running in http mode`
-    );
+    return;
   }
+
+  serve(
+    { fetch: app.fetch, port },
+    (address) => {
+      logger.info(
+        `node mp3stream ${pkg.version} is running with HTTP on port ${address.port}`
+      );
+    }
+  );
 };
 
-// if no db = clean set-up = create clean db
-var addUserMode = process.argv[2] === "adduser";
+const addUserMode = process.argv[2] === "adduser";
 if (addUserMode) {
   askUser(true);
 } else {
-  // check if we have a .env file; if not create it
   if (!fs.existsSync("./.env")) {
     logger.info("no .env file found; ask for the questions");
     ask();
   }
-  // now we have the process.env variables we need!
   if (process.env.USEJSMUSICDB) {
     logger.info(
       "Visit https://www.jsmusicdb.com and use this server as back-end"
     );
   }
-  const dir = './public/data/secure/';
+  const dir = "./public/data/secure/";
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }

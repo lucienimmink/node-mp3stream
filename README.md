@@ -1,6 +1,6 @@
 # Node MP3-Stream
 
-A simple mp3 streamer/webserver written in JavaScript. All you need to run is [Node.js](https://nodejs.org/en/).
+A simple mp3 streamer/webserver written in JavaScript with Hono. All you need to run is [Node.js](https://nodejs.org/en/).
 To play music please browse to [JSMusicDB](https://www.jsmusicdb.com) and provide credentials as you setup using the instructions below.
 
 ## Install
@@ -9,11 +9,17 @@ To play music please browse to [JSMusicDB](https://www.jsmusicdb.com) and provid
 
 then
 
-`npm ci`
+`pnpm install --frozen-lockfile`
 
 ## Run
 
-`node app`
+`pnpm start`
+
+The JWT signing key is generated and persisted in `public/data/secure/jwt-secret`.
+Set `JWT_SECRET` (at least 32 characters) when multiple instances need to share tokens.
+Tokens expire after 24 hours; tokens issued before this upgrade require users to sign in again.
+Cross-origin access is limited to JSMusicDB by default; set `CORS_ORIGINS` to a
+comma-separated list of trusted origins to allow other web clients.
 
 1st run will ask for the following settings
 
@@ -33,14 +39,14 @@ You have to make sure that the cert and key are up-to-date and valid.
 Included is a dockerfile to create and run a containerized version of node-mp3stream.
 
 Build the container by issuing the command
-`npm run docker:build`
+`pnpm run docker:build`
 
 And setup your first user
-`npm run docker:setup`
+`pnpm run docker:setup`
 Note that the server is now available.
 
 To run it deamonized
-`npm run docker: run`
+`pnpm run docker:run`
 Please refer to the `package.json` to alter settings like the port and music volume.
 
 ### volumes
@@ -67,4 +73,4 @@ docker volume create \
 <volume-name>
 ```
 
-Do this for both `music-share` and `data` and afterward just run `npm run docker:run`; happy streaming!
+Do this for both `music-share` and `data` and afterward just run `pnpm run docker:run`; happy streaming!

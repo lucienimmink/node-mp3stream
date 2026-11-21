@@ -1,9 +1,6 @@
 import { readFileSync } from "node:fs";
 
-export default function(req, res) {
+export default function publicKey(c) {
   const key = readFileSync("./.public-key.json", "utf-8");
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "application/json");
-  res.write(key);
-  res.end();
+  return c.json(JSON.parse(key));
 }

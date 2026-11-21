@@ -1,4 +1,6 @@
-FROM node:26-alpine
+FROM node:26.13.1-alpine
+
+RUN npm install --global pnpm@12.16.1
 
 RUN apk update \
     && apk add sqlite \
@@ -10,7 +12,7 @@ WORKDIR /app
 
 COPY . ./
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 COPY .env.docker ./.env
 

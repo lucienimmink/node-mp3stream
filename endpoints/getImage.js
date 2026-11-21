@@ -1,57 +1,39 @@
-import loggerModule from "../modules/logger.js";
-import fs from "fs";
-import url from "url";
+import fs from "node:fs";
+import createLogger from "../modules/logger.js";
 
-const logger = loggerModule("getImage");
+const logger = createLogger("getImage");
+const cacheDirectory = "public/data/cache";
 
-const returnPath = (path, req, res) => {
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(
-    JSON.stringify({
-      url: `//${req.headers.host}/data/cache/${path}`,
-    })
-  );
-};
+const returnPath = (filePath, c) =>
+  c.json({
+    url: `//${c.req.header("host")}/data/cache/${filePath}`,
+  });
 
-export default function getImage (req, res) {
-  const queryData = url.parse(req.url, true).query;
-  const mbid = queryData.mbid;
+const notFound = (c) =>
+  c.body(null, 404, {
+    "Cache-Control": "no-store",
+    Expires: new Date(Date.now() - 1000).toUTCString(),
+  });
+
+export default function getImage(c) {
+  const mbid = c.req.query("mbid");
   if (mbid) {
-    const files = fs.readdirSync(`public/data/cache`);
-    const matchedFiles = files.filter((file) => file.includes(mbid));
-    if (matchedFiles.length > 0) {
-      returnPath(matchedFiles[0], req, res);
-    } else {
-      // don't cache 404 results please
-      res.removeHeader("Cache-Control");
-      res.setHeader(
-        "Expires",
-        new Date(new Date().getTime() - 1).toUTCString()
-      );
-      res.writeHead(404, "Not found");
-      res.end();
+    if (!fs.existsSync(cacheDirectory)) {
+      return notFound(c);
     }
-    return;
+    const matchedFile = fs.readdirSync(cacheDirectory).find((file) => file.includes(mbid));
+    return matchedFile ? returnPath(matchedFile, c) : notFound(c);
   }
-  let cacheName = queryData.url;
-  if (cacheName.includes("https://")) {
-    cacheName = cacheName.substring(8);
+
+  const imageUrl = c.req.query("url");
+  if (!imageUrl) {
+    return c.body(null, 400);
   }
-  if (cacheName.includes("http://")) {
-    cacheName = cacheName.substring(7);
-  }
-  cacheName = cacheName.replace(/\//g, `_`);
-  if (fs.existsSync(`public/data/cache/${cacheName}`)) {
-    logger.debug('returning cached image')
-    returnPath(cacheName, req, res);
-  } else {
-    logger.debug('no cached image found')
-    res.removeHeader("Cache-Control");
-    res.setHeader(
-      "Expires",
-      new Date(new Date().getTime() - 1).toUTCString()
-    );
-    res.writeHead(404, "Not found");
-    res.end();
-  }
-};
+  logger.debug("looking up cached image");
+  const cacheName = imageUrl
+    .replace(/^https?:\/\//, "")
+    .replace(/\//g, "_");
+  return fs.existsSync(`${cacheDirectory}/${cacheName}`)
+    ? returnPath(cacheName, c)
+    : notFound(c);
+}

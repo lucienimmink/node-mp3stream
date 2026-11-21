@@ -1,12 +1,15 @@
 import fs from 'node:fs/promises';
 import { Crypto } from '@peculiar/webcrypto';
-import jwt from 'jwt-simple';
+import { verify } from 'hono/jwt';
 import db from './db.js';
 import { cryptoAlgorithm } from './crypto.js';
+import getJwtSecret from './jwtSecret.js';
+import createLogger from './logger.js';
 
-const knownJWTTokens = {};
+const knownJWTTokens = Object.create(null);
 
 const crypto = new Crypto();
+const logger = createLogger('validateJwt');
 
 const decryptPassword = async (encrypted) => {
   const payloadBuffer = Buffer.from(encrypted, 'base64');
@@ -33,14 +36,24 @@ const decryptPassword = async (encrypted) => {
   return new TextDecoder().decode(data);
 };
 
-const parseToken = (token) => {
-  if (!token) {
-    return false;
+const parseToken = async (token) => {
+  if (typeof token !== 'string' || token.length > 8192) {
+    return null;
   }
+  const secret = getJwtSecret();
   try {
-    let decoded = jwt.decode(token, 'jsmusicdbnext');
-    if (typeof decoded === 'string') {
-      return JSON.parse(decoded);
+    const decoded = await verify(token, secret, 'HS256');
+    const now = Math.floor(Date.now() / 1000);
+    if (
+      !decoded ||
+      typeof decoded !== 'object' ||
+      !Number.isInteger(decoded.iat) ||
+      !Number.isInteger(decoded.exp) ||
+      decoded.iat > now ||
+      decoded.exp <= now ||
+      decoded.exp <= decoded.iat
+    ) {
+      return null;
     }
     return decoded;
   } catch (e) {
@@ -48,21 +61,31 @@ const parseToken = (token) => {
   }
 };
 
-export default async function validateJwt(jwt, cb) {
-  if (!knownJWTTokens[jwt]) {
-    const decoded = parseToken(jwt);
-    if (!decoded) {
-      cb(false);
-    }
-    // for now we keep support for unencrypted passwords as well; for now :)
-    let password = decoded?.password;
-    if (decoded?.encryptedPassword) {
-      try {
-        password = await decryptPassword(decoded.encryptedPassword);
-      } catch (e) {}
-    }
-    db(decoded?.name, password, cb, jwt, knownJWTTokens);
-  } else {
-    cb(true);
+export default async function validateJwt(jwt) {
+  if (!jwt) {
+    return false;
   }
+  const decoded = await parseToken(jwt);
+  if (!decoded) {
+    return false;
+  }
+  if (knownJWTTokens[jwt] === true) {
+    return true;
+  }
+
+  let password = decoded.password;
+  if (decoded.encryptedPassword) {
+    try {
+      password = await decryptPassword(decoded.encryptedPassword);
+    } catch (error) {
+      logger.warn(`Unable to decrypt password from JWT: ${error.message}`);
+      return false;
+    }
+  }
+  if (typeof decoded.name !== 'string' || typeof password !== 'string') {
+    return false;
+  }
+  return new Promise((resolve, reject) => {
+    db(decoded.name, password, resolve, jwt, knownJWTTokens).catch(reject);
+  });
 }

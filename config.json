@@ -4,6 +4,6 @@
   "musicdb": "./public/data/",
   "useJSMusicDB": false,
   "useSSL": false,
-  "sslCert": "/usr/syno/etc/certificate/system/default/fullchain.pem",
-  "sslKey": "/usr/syno/etc/certificate/system/default/privkey.pem"
+  "sslCert": "",
+  "sslKey": ""
 }
