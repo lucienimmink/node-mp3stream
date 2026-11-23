@@ -168,7 +168,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^2.1.11
-        version: 2.1.11(hono@4.13.19)
+        version: 2.1.11(hono@4.13.20)
       '@peculiar/webcrypto':
         specifier: ^2.0.0
         version: 2.0.0(@peculiar/asn1-schema@3.1.0(asn1js@4.1.0))(@peculiar/json-schema@3.0.0)(webcrypto-core@2.0.0(@peculiar/asn1-schema@3.1.0(asn1js@4.1.0))(@peculiar/json-schema@3.0.0)(asn1js@4.1.0))
@@ -197,8 +197,8 @@ importers:
         specifier: ^0.0.2
         version: 0.0.2
       hono:
-        specifier: ^4.13.19
-        version: 4.13.19
+        specifier: ^4.13.20
+        version: 4.13.20
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -372,8 +372,8 @@ packages:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
 
-  hono@4.13.19:
-    resolution: {integrity: sha512-KmXvQAXwcAHV+muzbIwoJ23niEB5nMoDVr9WcRkU8mvjUECm/1+7v4Jgp7P7a+H6MLFrh+vXrGonGrGS+RQfkA==}
+  hono@4.13.20:
+    resolution: {integrity: sha512-xo6gecEJQ+CjTtOUUbcLHE8CdRKMeF4qITe+DT+OhFnSUmZR/ZBa9XavAfiGh4HlukmlaHFdaK4dz5tkTYFNmA==}
     engines: {node: '>=16.9.0'}
 
   inflight@1.0.6:
@@ -549,9 +549,9 @@ snapshots:
       enabled: 2.0.0
       kuler: 2.0.0
 
-  '@hono/node-server@2.1.11(hono@4.13.19)':
+  '@hono/node-server@2.1.11(hono@4.13.20)':
     dependencies:
-      hono: 4.13.19
+      hono: 4.13.20
 
   '@peculiar/asn1-schema@3.1.0(asn1js@4.1.0)':
     dependencies:
@@ -684,7 +684,7 @@ snapshots:
     dependencies:
       parse-passwd: 1.0.0
 
-  hono@4.13.19: {}
+  hono@4.13.20: {}
 
   inflight@1.0.6:
     dependencies:
